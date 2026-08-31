@@ -1,1244 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  >
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#0f172a">
-
-  <title>My Investment Planner</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --blue: #2563eb;
-      --blue-dark: #1d4ed8;
-      --green: #15803d;
-      --red: #dc2626;
-      --orange: #c2410c;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Arial,
-        sans-serif;
-    }
-
-    header {
-      padding:
-        calc(22px + env(safe-area-inset-top))
-        18px
-        24px;
-      background: linear-gradient(135deg, #0f172a, #2563eb);
-      color: white;
-    }
-
-    header div {
-      max-width: 900px;
-      margin: auto;
-    }
-
-    header h1 {
-      margin: 0 0 6px;
-      font-size: 26px;
-    }
-
-    header p {
-      margin: 0;
-      color: #dbeafe;
-      font-size: 14px;
-    }
-
-    main {
-      max-width: 900px;
-      margin: auto;
-      padding:
-        16px
-        12px
-        calc(40px + env(safe-area-inset-bottom));
-    }
-
-    .card {
-      margin-bottom: 14px;
-      padding: 18px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
-    }
-
-    h2 {
-      margin: 0 0 5px;
-      font-size: 19px;
-    }
-
-    .description {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    label {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    input,
-    select {
-      width: 100%;
-      min-width: 0;
-      padding: 12px;
-      color: var(--text);
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      outline: none;
-      font-size: 16px;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    button {
-      padding: 12px 15px;
-      border: 0;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .primary {
-      color: white;
-      background: var(--blue);
-    }
-
-    .primary:active {
-      background: var(--blue-dark);
-    }
-
-    .secondary {
-      color: var(--blue);
-      background: #eff6ff;
-    }
-
-    .danger {
-      color: var(--red);
-      background: #fef2f2;
-    }
-
-    .full-button {
-      width: 100%;
-      margin-top: 14px;
-    }
-
-    details {
-      margin-top: 14px;
-      padding: 12px;
-      background: #f8fafc;
-      border-radius: 12px;
-    }
-
-    summary {
-      color: var(--blue);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    details .grid {
-      margin-top: 14px;
-    }
-
-    .asset-head,
-    .asset-row {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr 0.9fr auto;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .asset-head {
-      margin-bottom: 7px;
-      padding: 0 3px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .asset-row {
-      margin-bottom: 8px;
-    }
-
-    .delete-button {
-      padding: 11px;
-    }
-
-    .asset-total {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-      font-weight: 700;
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .metric {
-      padding: 14px;
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-    }
-
-    .metric span {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .metric strong {
-      display: block;
-      font-size: 19px;
-      line-height: 1.3;
-    }
-
-    .positive {
-      color: var(--green);
-    }
-
-    .negative {
-      color: var(--red);
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 13px;
-      margin-top: 12px;
-      overflow: hidden;
-      background: #e2e8f0;
-      border-radius: 99px;
-    }
-
-    .progress-bar {
-      width: 0;
-      height: 100%;
-      background: linear-gradient(90deg, #2563eb, #22c55e);
-      border-radius: 99px;
-      transition: width 0.3s ease;
-    }
-
-    .result-message {
-      margin-top: 12px;
-      padding: 13px;
-      color: #1e3a8a;
-      background: #eff6ff;
-      border-radius: 12px;
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th,
-    td {
-      padding: 11px 8px;
-      border-bottom: 1px solid var(--border);
-      text-align: right;
-      white-space: nowrap;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    th:first-child,
-    td:first-child {
-      text-align: left;
-    }
-
-    .overweight {
-      color: var(--orange);
-    }
-
-    .underweight {
-      color: var(--blue);
-    }
-
-    .suggestions {
-      margin: 14px 0 0;
-      padding-left: 20px;
-      color: #334155;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .suggestions li {
-      margin-bottom: 7px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .actions button {
-      flex: 1;
-    }
-
-    .small {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 650px) {
-      .grid,
-      .summary-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .asset-head {
-        display: none;
-      }
-
-      .asset-row {
-        grid-template-columns: 1fr 1fr;
-        padding: 12px;
-        background: #f8fafc;
-        border-radius: 12px;
-      }
-
-      .asset-row .asset-name {
-        grid-column: 1 / -1;
-      }
-
-      .asset-row .delete-button {
-        grid-column: 1 / -1;
-      }
-
-      header h1 {
-        font-size: 23px;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b1020">
+<title>Investment Planner</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:16px 14px 40px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+color:#e8ecf8;background:radial-gradient(1000px 600px at 15% -10%,#1e2a6b 0%,transparent 60%),
+radial-gradient(900px 500px at 110% 10%,#0f5f6b 0%,transparent 55%),#0b1020;min-height:100vh}
+h1{font-size:22px;margin:4px 0 2px;letter-spacing:.3px}
+.sub{font-size:12.5px;color:#93a0c4;margin-bottom:16px}
+.card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);
+border-radius:18px;padding:16px;margin-bottom:14px;backdrop-filter:blur(12px);
+box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:1.1px;color:#8fa3d8;margin:0 0 12px}
+label{display:block;font-size:12px;color:#9fb0d8;margin:10px 0 5px}
+input[type=number]{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+background:rgba(0,0,0,.28);color:#fff;font-size:16px;outline:none}
+input[type=number]:focus{border-color:#4f8cff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{width:100%;margin-top:16px;padding:14px;border:0;border-radius:14px;font-size:16px;font-weight:600;
+color:#fff;background:linear-gradient(135deg,#4f8cff,#28d3b0);box-shadow:0 8px 22px rgba(79,140,255,.35);
+transition:transform .15s ease}
+button:active{transform:scale(.97)}
+.toggle{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:13px;color:#c3cfec}
+input[type=checkbox]{width:19px;height:19px;accent-color:#28d3b0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);
+border-radius:16px;padding:13px}
+.stat .k{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#8fa3d8}
+.stat .v{font-size:19px;font-weight:700;margin-top:5px}
+.up{color:#28d3b0}
+input[type=range]{width:100%;margin:6px 0 4px;accent-color:#4f8cff;height:26px}
+.yearbadge{display:inline-block;padding:5px 13px;border-radius:999px;font-size:13px;font-weight:600;
+background:linear-gradient(135deg,#4f8cff,#28d3b0);margin-bottom:10px}
+.row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);
+animation:fade .45s ease both}
+.row:last-child{border-bottom:0}
+.dot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
+.nm{font-size:14px;font-weight:600}
+.ex{font-size:11.5px;color:#8fa3d8;margin-top:2px}
+.pct{margin-left:auto;font-size:15px;font-weight:700}
+@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.bar{height:5px;border-radius:4px;background:rgba(255,255,255,.10);overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;border-radius:4px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.note{font-size:11px;color:#7d8ab0;line-height:1.65;margin-top:6px}
+canvas{max-height:250px}
+</style>
 </head>
-
 <body>
-  <header>
-    <div>
-      <h1>My Investment Planner</h1>
-      <p>Track your assets and create a simple long-term investment plan.</p>
-    </div>
-  </header>
 
-  <main>
-    <section class="card">
-      <h2>1. Your Investment Goal</h2>
-      <p class="description">
-        Enter your plan. You can change the advanced assumptions if needed.
-      </p>
+<h1>Investment Planner</h1>
+<div class="sub">Growth projection &amp; year-by-year asset allocation</div>
 
-      <div class="grid">
-        <div class="field">
-          <label for="years">Years until retirement</label>
-          <input id="years" type="number" min="1" max="60" value="25">
-        </div>
+<div class="card">
+  <h2>Your Plan</h2>
+  <div class="grid">
+    <div><label>Current age</label><input type="number" id="age" value="30"></div>
+    <div><label>Years to invest</label><input type="number" id="years" value="30"></div>
+    <div><label>Starting amount</label><input type="number" id="initial" value="10000"></div>
+    <div><label>Monthly contribution</label><input type="number" id="monthly" value="500"></div>
+  </div>
+  <label>Expected annual return (%)</label>
+  <input type="number" id="ret" value="7" step="0.1">
+  <div class="toggle">
+    <input type="checkbox" id="glide" checked>
+    <span>Auto-calculate return from allocation mix</span>
+  </div>
+  <button id="run">Calculate</button>
+</div>
 
-        <div class="field">
-          <label for="monthlyDCA">Monthly investment</label>
-          <input
-            id="monthlyDCA"
-            type="number"
-            min="0"
-            step="1000"
-            value="90000"
-          >
-        </div>
+<div class="stats">
+  <div class="stat"><div class="k">Final Value</div><div class="v up" id="sFinal">—</div></div>
+  <div class="stat"><div class="k">Total Invested</div><div class="v" id="sCont">—</div></div>
+  <div class="stat"><div class="k">Total Growth</div><div class="v up" id="sGain">—</div></div>
+  <div class="stat"><div class="k">Growth Multiple</div><div class="v" id="sMult">—</div></div>
+</div>
 
-        <div class="field">
-          <label for="monthlyIncome">
-            Desired monthly retirement income
-          </label>
-          <input
-            id="monthlyIncome"
-            type="number"
-            min="0"
-            step="1000"
-            value="100000"
-          >
-        </div>
+<div class="card">
+  <h2>Portfolio Growth</h2>
+  <canvas id="growthChart"></canvas>
+</div>
 
-        <div class="field">
-          <label for="riskLevel">Risk level</label>
-          <select id="riskLevel">
-            <option value="conservative">Conservative</option>
-            <option value="balanced">Balanced</option>
-            <option value="growth" selected>Growth</option>
-            <option value="aggressive">Aggressive</option>
-          </select>
-        </div>
-      </div>
+<div class="card">
+  <h2>Allocation Explorer</h2>
+  <div class="yearbadge" id="yearLabel">Year 0</div>
+  <input type="range" id="yearSlider" min="0" max="30" value="0">
+  <canvas id="allocChart"></canvas>
+  <div id="suggestions"></div>
+  <div class="note">Educational model only. Asset classes follow a standard age-based glide path;
+  fund tickers are common examples, not recommendations. Returns are assumptions, not guarantees.</div>
+</div>
 
-      <details>
-        <summary>Advanced assumptions</summary>
+<script>
+const COLORS = ['#4f8cff','#28d3b0','#f5a623','#9b7bff','#ff6b8a'];
+const EXAMPLES = {
+  "US Total Market": "VTI · VOO · SPY",
+  "International":   "VXUS · VEA · IEFA",
+  "Small / Mid Cap": "VB · IJH · VBR",
+  "Bonds":           "BND · AGG · SHY",
+  "Gold / REIT":     "GLD · VNQ · SCHH"
+};
+const ASSUMED = {
+  "US Total Market":.075, "International":.070, "Small / Mid Cap":.080,
+  "Bonds":.035, "Gold / REIT":.050
+};
 
-        <div class="grid">
-          <div class="field">
-            <label for="returnRate">Expected annual return (%)</label>
-            <input
-              id="returnRate"
-              type="number"
-              min="-10"
-              max="30"
-              step="0.1"
-              value="6"
-            >
-          </div>
+function allocationForAge(age){
+  const equity = Math.max(20, Math.min(90, 110 - age));
+  const alt = 10, bonds = 100 - equity - alt;
+  const a = {
+    "US Total Market": Math.round(equity*.50),
+    "International":   Math.round(equity*.30),
+    "Small / Mid Cap": Math.round(equity*.20),
+    "Bonds":           bonds,
+    "Gold / REIT":     alt
+  };
+  const sum = Object.values(a).reduce((s,v)=>s+v,0);
+  a["US Total Market"] += 100 - sum;
+  return a;
+}
+function blendedReturn(age){
+  const a = allocationForAge(age);
+  return Object.entries(a).reduce((s,[k,v])=>s + (v/100)*ASSUMED[k], 0);
+}
+const money = n => '
 
-          <div class="field">
-            <label for="inflationRate">Annual inflation (%)</label>
-            <input
-              id="inflationRate"
-              type="number"
-              min="0"
-              max="20"
-              step="0.1"
-              value="2.5"
-            >
-          </div>
+### How to update on your iPhone
+1. Open your repository → tap `index.html`.
+2. Tap the **pencil** icon to edit.
+3. Select all existing text and delete it.
+4. Paste the code above.
+5. Tap **Commit changes** → **Commit changes**.
+6. Wait ~1–2 minutes, then refresh your Pages URL.
 
-          <div class="field">
-            <label for="withdrawalRate">
-              Retirement withdrawal rate (%)
-            </label>
-            <input
-              id="withdrawalRate"
-              type="number"
-              min="1"
-              max="10"
-              step="0.1"
-              value="3.5"
-            >
-          </div>
-        </div>
-      </details>
-    </section>
+### What you can tune easily
+- **`allocationForAge()`** — change `110 - age` to `120 - age` for a more aggressive glide path.
+- **`ASSUMED`** — adjust the expected return per asset class.
+- **`EXAMPLES`** — swap in tickers available in your own market.
+- **`COLORS`** — change the palette.
 
-    <section class="card">
-      <h2>2. Current Asset Portfolio</h2>
-      <p class="description">
-        Add each account, fund, stock, bond, or cash position.
-      </p>
+If you'd rather keep your original design and just bolt on the charts, paste your existing code and I'll merge instead. Want me to add an inflation-adjusted "real value" line to the growth chart? + Math.round(n).toLocaleString('en-US');
 
-      <div class="asset-head">
-        <span>Asset name</span>
-        <span>Category</span>
-        <span>Current value</span>
-        <span></span>
-      </div>
+let growth, donut, series = [], startAge = 30;
 
-      <div id="assetList"></div>
+function project(){
+  startAge      = +age.value || 30;
+  const horizon = Math.max(1, Math.min(60, +years.value || 30));
+  const monthlyAdd = +monthly.value || 0;
+  const useGlide = glide.checked;
+  const manual = (+ret.value || 0)/100;
 
-      <button class="secondary" onclick="addAsset()">
-        + Add Asset
-      </button>
+  let bal = +initial.value || 0, invested = bal;
+  const labels=[0], vals=[bal], conts=[invested];
+  series = [bal];
 
-      <div class="asset-total">
-        <span>Total portfolio</span>
-        <span id="portfolioTotal">฿0</span>
-      </div>
-    </section>
+  for(let y=1; y<=horizon; y++){
+    const r = useGlide ? blendedReturn(startAge + y - 1) : manual;
+    const m = r/12;
+    for(let k=0;k<12;k++){ bal = bal*(1+m) + monthlyAdd; invested += monthlyAdd; }
+    labels.push(y); vals.push(bal); conts.push(invested); series.push(bal);
+  }
 
-    <section class="card">
-      <h2>3. Retirement Projection</h2>
-      <p class="description">
-        Estimates are based on constant returns and do not guarantee results.
-      </p>
+  sFinal.textContent = money(bal);
+  sCont.textContent  = money(invested);
+  sGain.textContent  = money(bal - invested);
+  sMult.textContent  = (bal/Math.max(invested,1)).toFixed(2) + '×';
 
-      <div class="summary-grid">
-        <div class="metric">
-          <span>Projected portfolio at retirement</span>
-          <strong id="futurePortfolio">—</strong>
-        </div>
+  yearSlider.max = horizon;
+  if(+yearSlider.value > horizon) yearSlider.value = horizon;
 
-        <div class="metric">
-          <span>Estimated retirement target</span>
-          <strong id="requiredPortfolio">—</strong>
-        </div>
+  drawGrowth(labels, vals, conts);
+  renderYear(+yearSlider.value);
+}
 
-        <div class="metric">
-          <span>Future monthly income needed</span>
-          <strong id="futureIncome">—</strong>
-        </div>
-
-        <div class="metric">
-          <span>Projected surplus or shortfall</span>
-          <strong id="portfolioGap">—</strong>
-        </div>
-
-        <div class="metric">
-          <span>Estimated minimum monthly investment</span>
-          <strong id="requiredDCA">—</strong>
-        </div>
-
-        <div class="metric">
-          <span>Goal progress</span>
-          <strong id="progressText">—</strong>
-          <div class="progress-track">
-            <div id="progressBar" class="progress-bar"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="projectionMessage" class="result-message"></div>
-    </section>
-
-    <section class="card">
-      <h2>4. Suggested Investment Plan</h2>
-      <p class="description">
-        The plan directs new monthly contributions toward underweight
-        categories.
-      </p>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Asset category</th>
-              <th>Current</th>
-              <th>Target</th>
-              <th>Monthly investment</th>
-            </tr>
-          </thead>
-          <tbody id="allocationTable"></tbody>
-        </table>
-      </div>
-
-      <ul id="suggestions" class="suggestions"></ul>
-    </section>
-
-    <section class="card">
-      <h2>Data</h2>
-
-      <div class="actions">
-        <button class="primary" onclick="saveData(true)">
-          Save
-        </button>
-
-        <button class="danger" onclick="resetData()">
-          Reset
-        </button>
-      </div>
-
-      <p class="small">
-        Your information is stored only in this browser. Clearing Safari
-        website data may delete it.
-      </p>
-    </section>
-  </main>
-
-  <script>
-    const categories = {
-      usStocks: "U.S. Stocks",
-      internationalStocks: "International Stocks",
-      bonds: "Bonds",
-      cash: "Cash"
-    };
-
-    const targetModels = {
-      conservative: {
-        usStocks: 30,
-        internationalStocks: 15,
-        bonds: 45,
-        cash: 10
+function drawGrowth(labels, vals, conts){
+  const cfg = {
+    type:'line',
+    data:{ labels,
+      datasets:[
+        {label:'Portfolio Value',data:vals,borderColor:'#4f8cff',
+         backgroundColor:'rgba(79,140,255,.22)',fill:true,tension:.4,
+         pointRadius:0,borderWidth:2.5},
+        {label:'Total Invested',data:conts,borderColor:'#28d3b0',
+         borderDash:[5,4],fill:false,tension:.4,pointRadius:0,borderWidth:2}
+      ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      animation:{duration:1200,easing:'easeOutQuart'},
+      plugins:{
+        legend:{labels:{color:'#9fb0d8',boxWidth:12,font:{size:11}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.parsed.y)}}
       },
-      balanced: {
-        usStocks: 45,
-        internationalStocks: 25,
-        bonds: 25,
-        cash: 5
-      },
-      growth: {
-        usStocks: 55,
-        internationalStocks: 30,
-        bonds: 10,
-        cash: 5
-      },
-      aggressive: {
-        usStocks: 65,
-        internationalStocks: 30,
-        bonds: 5,
-        cash: 0
+      scales:{
+        x:{ticks:{color:'#7d8ab0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'},
+           title:{display:true,text:'Year',color:'#7d8ab0',font:{size:10}}},
+        y:{ticks:{color:'#7d8ab0',font:{size:10},
+           callback:v=> v>=1e6 ? '
+
+### How to update on your iPhone
+1. Open your repository → tap `index.html`.
+2. Tap the **pencil** icon to edit.
+3. Select all existing text and delete it.
+4. Paste the code above.
+5. Tap **Commit changes** → **Commit changes**.
+6. Wait ~1–2 minutes, then refresh your Pages URL.
+
+### What you can tune easily
+- **`allocationForAge()`** — change `110 - age` to `120 - age` for a more aggressive glide path.
+- **`ASSUMED`** — adjust the expected return per asset class.
+- **`EXAMPLES`** — swap in tickers available in your own market.
+- **`COLORS`** — change the palette.
+
+If you'd rather keep your original design and just bolt on the charts, paste your existing code and I'll merge instead. Want me to add an inflation-adjusted "real value" line to the growth chart?+(v/1e6).toFixed(1)+'M' : '
+
+### How to update on your iPhone
+1. Open your repository → tap `index.html`.
+2. Tap the **pencil** icon to edit.
+3. Select all existing text and delete it.
+4. Paste the code above.
+5. Tap **Commit changes** → **Commit changes**.
+6. Wait ~1–2 minutes, then refresh your Pages URL.
+
+### What you can tune easily
+- **`allocationForAge()`** — change `110 - age` to `120 - age` for a more aggressive glide path.
+- **`ASSUMED`** — adjust the expected return per asset class.
+- **`EXAMPLES`** — swap in tickers available in your own market.
+- **`COLORS`** — change the palette.
+
+If you'd rather keep your original design and just bolt on the charts, paste your existing code and I'll merge instead. Want me to add an inflation-adjusted "real value" line to the growth chart?+(v/1e3).toFixed(0)+'k'},
+           grid:{color:'rgba(255,255,255,.05)'}}
       }
-    };
-
-    const defaultAssets = [
-      {
-        name: "Cash / Emergency Fund",
-        category: "cash",
-        value: 0
-      },
-      {
-        name: "U.S. Stock Funds",
-        category: "usStocks",
-        value: 0
-      },
-      {
-        name: "International Stock Funds",
-        category: "internationalStocks",
-        value: 0
-      },
-      {
-        name: "Bond Funds",
-        category: "bonds",
-        value: 0
-      }
-    ];
-
-    let assets = JSON.parse(JSON.stringify(defaultAssets));
-
-    const settingIds = [
-      "years",
-      "monthlyDCA",
-      "monthlyIncome",
-      "riskLevel",
-      "returnRate",
-      "inflationRate",
-      "withdrawalRate"
-    ];
-
-    function getNumber(id) {
-      return Number(document.getElementById(id).value) || 0;
     }
+  };
+  if(growth) growth.destroy();
+  growth = new Chart(document.getElementById('growthChart'), cfg);
+}
 
-    function formatMoney(value) {
-      if (!Number.isFinite(value)) {
-        return "—";
-      }
+function renderYear(y){
+  const alloc = allocationForAge(startAge + y);
+  const keys = Object.keys(alloc), data = Object.values(alloc);
+  const val = series[y] !== undefined ? series[y] : 0;
 
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "THB",
-        maximumFractionDigits: 0
-      }).format(value);
-    }
+  yearLabel.textContent = 'Year ' + y + ' · Age ' + (startAge + y) + ' · ' + money(val);
 
-    function formatPercent(value) {
-      if (!Number.isFinite(value)) {
-        return "0.0%";
-      }
-
-      return value.toFixed(1) + "%";
-    }
-
-    function calculateFutureValue(
-      startingAmount,
-      monthlyInvestment,
-      years,
-      annualReturn
-    ) {
-      const months = years * 12;
-      const monthlyRate = annualReturn / 100 / 12;
-
-      if (months <= 0) {
-        return startingAmount;
-      }
-
-      if (monthlyRate === 0) {
-        return startingAmount + monthlyInvestment * months;
-      }
-
-      const growth = Math.pow(1 + monthlyRate, months);
-
-      return (
-        startingAmount * growth +
-        monthlyInvestment * ((growth - 1) / monthlyRate)
-      );
-    }
-
-    function calculateRequiredMonthlyInvestment(
-      target,
-      startingAmount,
-      years,
-      annualReturn
-    ) {
-      const months = years * 12;
-      const monthlyRate = annualReturn / 100 / 12;
-
-      if (months <= 0) {
-        return 0;
-      }
-
-      if (monthlyRate === 0) {
-        return Math.max(
-          0,
-          (target - startingAmount) / months
-        );
-      }
-
-      const growth = Math.pow(1 + monthlyRate, months);
-      const futureStartingValue = startingAmount * growth;
-      const contributionFactor = (growth - 1) / monthlyRate;
-
-      return Math.max(
-        0,
-        (target - futureStartingValue) / contributionFactor
-      );
-    }
-
-    function getCategoryTotals() {
-      const totals = {
-        usStocks: 0,
-        internationalStocks: 0,
-        bonds: 0,
-        cash: 0
-      };
-
-      assets.forEach(asset => {
-        if (totals[asset.category] !== undefined) {
-          totals[asset.category] += Number(asset.value) || 0;
+  if(!donut){
+    donut = new Chart(document.getElementById('allocChart'), {
+      type:'doughnut',
+      data:{labels:keys,datasets:[{data,backgroundColor:COLORS,borderWidth:0}]},
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:'64%',
+        animation:{animateRotate:true,duration:800},
+        plugins:{
+          legend:{position:'bottom',labels:{color:'#9fb0d8',boxWidth:11,padding:12,font:{size:11}}},
+          tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+'%'}}
         }
-      });
-
-      return totals;
-    }
-
-    function getPortfolioTotal() {
-      return assets.reduce(
-        (total, asset) => total + (Number(asset.value) || 0),
-        0
-      );
-    }
-
-    function renderAssets() {
-      const list = document.getElementById("assetList");
-      list.innerHTML = "";
-
-      assets.forEach((asset, index) => {
-        const row = document.createElement("div");
-        row.className = "asset-row";
-
-        const nameInput = document.createElement("input");
-        nameInput.className = "asset-name";
-        nameInput.type = "text";
-        nameInput.placeholder = "Asset name";
-        nameInput.value = asset.name;
-
-        nameInput.addEventListener("input", event => {
-          assets[index].name = event.target.value;
-          updateApp();
-        });
-
-        const categorySelect = document.createElement("select");
-
-        Object.entries(categories).forEach(([key, label]) => {
-          const option = document.createElement("option");
-          option.value = key;
-          option.textContent = label;
-
-          if (key === asset.category) {
-            option.selected = true;
-          }
-
-          categorySelect.appendChild(option);
-        });
-
-        categorySelect.addEventListener("change", event => {
-          assets[index].category = event.target.value;
-          updateApp();
-        });
-
-        const valueInput = document.createElement("input");
-        valueInput.type = "number";
-        valueInput.min = "0";
-        valueInput.step = "1000";
-        valueInput.placeholder = "Value";
-        valueInput.value = asset.value || "";
-
-        valueInput.addEventListener("input", event => {
-          assets[index].value = Number(event.target.value) || 0;
-          updateApp();
-        });
-
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "danger delete-button";
-        deleteButton.textContent = "Delete";
-
-        deleteButton.onclick = () => {
-          assets.splice(index, 1);
-          renderAssets();
-          updateApp();
-        };
-
-        row.appendChild(nameInput);
-        row.appendChild(categorySelect);
-        row.appendChild(valueInput);
-        row.appendChild(deleteButton);
-
-        list.appendChild(row);
-      });
-    }
-
-    function addAsset() {
-      assets.push({
-        name: "",
-        category: "usStocks",
-        value: 0
-      });
-
-      renderAssets();
-      saveData(false);
-    }
-
-    function calculateMonthlyPlan(
-      categoryTotals,
-      portfolioTotal,
-      monthlyDCA,
-      targets
-    ) {
-      const futureTotal = portfolioTotal + monthlyDCA;
-      const deficits = {};
-      let totalDeficit = 0;
-
-      Object.keys(categories).forEach(key => {
-        const desiredValue =
-          futureTotal * (targets[key] / 100);
-
-        deficits[key] = Math.max(
-          0,
-          desiredValue - categoryTotals[key]
-        );
-
-        totalDeficit += deficits[key];
-      });
-
-      const plan = {};
-
-      Object.keys(categories).forEach(key => {
-        if (monthlyDCA <= 0) {
-          plan[key] = 0;
-        } else if (portfolioTotal === 0 || totalDeficit === 0) {
-          plan[key] = monthlyDCA * (targets[key] / 100);
-        } else {
-          plan[key] =
-            monthlyDCA * (deficits[key] / totalDeficit);
-        }
-      });
-
-      return plan;
-    }
-
-    function renderAllocationPlan() {
-      const portfolioTotal = getPortfolioTotal();
-      const monthlyDCA = getNumber("monthlyDCA");
-      const riskLevel =
-        document.getElementById("riskLevel").value;
-
-      const targets = targetModels[riskLevel];
-      const totals = getCategoryTotals();
-
-      const monthlyPlan = calculateMonthlyPlan(
-        totals,
-        portfolioTotal,
-        monthlyDCA,
-        targets
-      );
-
-      const table = document.getElementById("allocationTable");
-      table.innerHTML = "";
-
-      let largestDifference = {
-        key: null,
-        difference: 0
-      };
-
-      Object.keys(categories).forEach(key => {
-        const currentPercent =
-          portfolioTotal > 0
-            ? (totals[key] / portfolioTotal) * 100
-            : 0;
-
-        const difference = currentPercent - targets[key];
-
-        if (
-          Math.abs(difference) >
-          Math.abs(largestDifference.difference)
-        ) {
-          largestDifference = {
-            key,
-            difference
-          };
-        }
-
-        const row = document.createElement("tr");
-
-        const categoryCell = document.createElement("td");
-        categoryCell.textContent = categories[key];
-
-        const currentCell = document.createElement("td");
-        currentCell.textContent =
-          formatPercent(currentPercent) +
-          " · " +
-          formatMoney(totals[key]);
-
-        if (difference > 5) {
-          currentCell.className = "overweight";
-        } else if (difference < -5) {
-          currentCell.className = "underweight";
-        }
-
-        const targetCell = document.createElement("td");
-        targetCell.textContent = targets[key] + "%";
-
-        const monthlyCell = document.createElement("td");
-        monthlyCell.textContent =
-          formatMoney(monthlyPlan[key]) + "/month";
-
-        row.appendChild(categoryCell);
-        row.appendChild(currentCell);
-        row.appendChild(targetCell);
-        row.appendChild(monthlyCell);
-
-        table.appendChild(row);
-      });
-
-      renderSuggestions(
-        portfolioTotal,
-        monthlyDCA,
-        riskLevel,
-        largestDifference
-      );
-    }
-
-    function renderSuggestions(
-      portfolioTotal,
-      monthlyDCA,
-      riskLevel,
-      largestDifference
-    ) {
-      const list = document.getElementById("suggestions");
-      list.innerHTML = "";
-
-      const messages = [];
-
-      if (portfolioTotal === 0) {
-        messages.push(
-          "Enter your current asset values to receive a portfolio-specific plan."
-        );
-      } else if (
-        largestDifference.key &&
-        largestDifference.difference > 5
-      ) {
-        messages.push(
-          categories[largestDifference.key] +
-          " is above its target. Consider directing new money to the other categories instead of selling immediately."
-        );
-      } else if (
-        largestDifference.key &&
-        largestDifference.difference < -5
-      ) {
-        messages.push(
-          categories[largestDifference.key] +
-          " is below its target and should receive more of the new monthly investment."
-        );
-      } else {
-        messages.push(
-          "Your overall asset allocation is reasonably close to the selected target."
-        );
       }
-
-      if (monthlyDCA > 0) {
-        messages.push(
-          "Invest the monthly amount according to the suggested contribution column and review it once a year."
-        );
-      }
-
-      if (
-        riskLevel === "growth" ||
-        riskLevel === "aggressive"
-      ) {
-        messages.push(
-          "This portfolio may experience large temporary declines. Use this risk level only if you can remain invested during market downturns."
-        );
-      }
-
-      messages.push(
-        "Keep an emergency fund separate from long-term investments, normally around 6–12 months of essential expenses."
-      );
-
-      messages.push(
-        "Limit concentrated sector, thematic, or individual-stock positions to a small satellite portion of the portfolio."
-      );
-
-      messages.forEach(message => {
-        const item = document.createElement("li");
-        item.textContent = message;
-        list.appendChild(item);
-      });
-    }
-
-    function updateProjection() {
-      const portfolioTotal = getPortfolioTotal();
-      const monthlyDCA = getNumber("monthlyDCA");
-      const years = getNumber("years");
-      const monthlyIncome = getNumber("monthlyIncome");
-      const annualReturn = getNumber("returnRate");
-      const inflation = getNumber("inflationRate");
-      const withdrawalRate = getNumber("withdrawalRate");
-
-      const futurePortfolio = calculateFutureValue(
-        portfolioTotal,
-        monthlyDCA,
-        years,
-        annualReturn
-      );
-
-      const futureMonthlyIncome =
-        monthlyIncome *
-        Math.pow(1 + inflation / 100, years);
-
-      const requiredPortfolio =
-        withdrawalRate > 0
-          ? futureMonthlyIncome *
-            12 /
-            (withdrawalRate / 100)
-          : 0;
-
-      const gap = futurePortfolio - requiredPortfolio;
-
-      const requiredDCA =
-        calculateRequiredMonthlyInvestment(
-          requiredPortfolio,
-          portfolioTotal,
-          years,
-          annualReturn
-        );
-
-      const progress =
-        requiredPortfolio > 0
-          ? (futurePortfolio / requiredPortfolio) * 100
-          : 0;
-
-      document.getElementById(
-        "futurePortfolio"
-      ).textContent = formatMoney(futurePortfolio);
-
-      document.getElementById(
-        "requiredPortfolio"
-      ).textContent = formatMoney(requiredPortfolio);
-
-      document.getElementById(
-        "futureIncome"
-      ).textContent =
-        formatMoney(futureMonthlyIncome) + "/month";
-
-      const gapElement =
-        document.getElementById("portfolioGap");
-
-      gapElement.textContent =
-        (gap >= 0 ? "+" : "-") +
-        formatMoney(Math.abs(gap));
-
-      gapElement.className =
-        gap >= 0 ? "positive" : "negative";
-
-      document.getElementById(
-        "requiredDCA"
-      ).textContent =
-        formatMoney(requiredDCA) + "/month";
-
-      document.getElementById(
-        "progressText"
-      ).textContent =
-        Math.round(progress).toLocaleString("en-US") + "%";
-
-      document.getElementById(
-        "progressBar"
-      ).style.width =
-        Math.min(100, Math.max(0, progress)) + "%";
-
-      const message =
-        document.getElementById("projectionMessage");
-
-      if (portfolioTotal === 0) {
-        message.textContent =
-          "Add your current assets above to create a more accurate projection.";
-      } else if (gap >= 0) {
-        message.textContent =
-          "Based on these assumptions, your projected portfolio reaches the retirement target. Review your plan annually because actual returns and inflation will vary.";
-      } else {
-        message.textContent =
-          "Based on these assumptions, the plan has a projected shortfall of " +
-          formatMoney(Math.abs(gap)) +
-          ". Possible adjustments include increasing monthly contributions, retiring later, or reducing the retirement income target.";
-      }
-    }
-
-    function updateApp() {
-      document.getElementById(
-        "portfolioTotal"
-      ).textContent = formatMoney(getPortfolioTotal());
-
-      updateProjection();
-      renderAllocationPlan();
-      saveData(false);
-    }
-
-    function saveData(showMessage = false) {
-      const settings = {};
-
-      settingIds.forEach(id => {
-        settings[id] =
-          document.getElementById(id).value;
-      });
-
-      const data = {
-        settings,
-        assets
-      };
-
-      localStorage.setItem(
-        "simpleInvestmentPlanner",
-        JSON.stringify(data)
-      );
-
-      if (showMessage) {
-        alert("Your information has been saved.");
-      }
-    }
-
-    function loadData() {
-      const saved = localStorage.getItem(
-        "simpleInvestmentPlanner"
-      );
-
-      if (!saved) {
-        renderAssets();
-        updateApp();
-        return;
-      }
-
-      try {
-        const data = JSON.parse(saved);
-
-        if (data.settings) {
-          settingIds.forEach(id => {
-            if (data.settings[id] !== undefined) {
-              document.getElementById(id).value =
-                data.settings[id];
-            }
-          });
-        }
-
-        if (
-          Array.isArray(data.assets) &&
-          data.assets.length > 0
-        ) {
-          assets = data.assets;
-        }
-      } catch (error) {
-        assets = JSON.parse(
-          JSON.stringify(defaultAssets)
-        );
-      }
-
-      renderAssets();
-      updateApp();
-    }
-
-    function resetData() {
-      const confirmed = confirm(
-        "Delete all saved information and restore the default settings?"
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      localStorage.removeItem(
-        "simpleInvestmentPlanner"
-      );
-
-      assets = JSON.parse(
-        JSON.stringify(defaultAssets)
-      );
-
-      document.getElementById("years").value = 25;
-      document.getElementById("monthlyDCA").value = 90000;
-      document.getElementById("monthlyIncome").value = 100000;
-      document.getElementById("riskLevel").value = "growth";
-      document.getElementById("returnRate").value = 6;
-      document.getElementById("inflationRate").value = 2.5;
-      document.getElementById("withdrawalRate").value = 3.5;
-
-      renderAssets();
-      updateApp();
-    }
-
-    settingIds.forEach(id => {
-      document
-        .getElementById(id)
-        .addEventListener("input", updateApp);
-
-      document
-        .getElementById(id)
-        .addEventListener("change", updateApp);
     });
+  } else {
+    donut.data.datasets[0].data = data;
+    donut.update();
+  }
 
-    loadData();
-  </script>
+  suggestions.innerHTML = keys.map((k,i)=>`
+    <div class="row" style="animation-delay:${i*55}ms">
+      <span class="dot" style="background:${COLORS[i]}"></span>
+      <div style="flex:1">
+        <div class="nm">${k}</div>
+        <div class="ex">${EXAMPLES[k]} &nbsp;·&nbsp; ${money(val*alloc[k]/100)}</div>
+        <div class="bar"><i style="width:${alloc[k]}%;background:${COLORS[i]}"></i></div>
+      </div>
+      <span class="pct">${alloc[k]}%</span>
+    </div>`).join('');
+}
+
+document.getElementById('run').addEventListener('click', project);
+yearSlider.addEventListener('input', e => renderYear(+e.target.value));
+project();
+</script>
+
 </body>
 </html>
