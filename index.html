@@ -3,25 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1020">
 <title>Investment Planner</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding:16px 14px 40px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+body{margin:0;padding:16px 14px 44px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
 color:#e8ecf8;background:radial-gradient(1000px 600px at 15% -10%,#1e2a6b 0%,transparent 60%),
 radial-gradient(900px 500px at 110% 10%,#0f5f6b 0%,transparent 55%),#0b1020;min-height:100vh}
-h1{font-size:22px;margin:4px 0 2px;letter-spacing:.3px}
+h1{font-size:22px;margin:4px 0 2px}
 .sub{font-size:12.5px;color:#93a0c4;margin-bottom:16px}
 .card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);
-border-radius:18px;padding:16px;margin-bottom:14px;backdrop-filter:blur(12px);
-box-shadow:0 10px 30px rgba(0,0,0,.28)}
+border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
 .card h2{font-size:13px;text-transform:uppercase;letter-spacing:1.1px;color:#8fa3d8;margin:0 0 12px}
 label{display:block;font-size:12px;color:#9fb0d8;margin:10px 0 5px}
 input[type=number]{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
 background:rgba(0,0,0,.28);color:#fff;font-size:16px;outline:none}
 input[type=number]:focus{border-color:#4f8cff}
+input[type=number]:disabled{opacity:.45}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 button{width:100%;margin-top:16px;padding:14px;border:0;border-radius:14px;font-size:16px;font-weight:600;
 color:#fff;background:linear-gradient(135deg,#4f8cff,#28d3b0);box-shadow:0 8px 22px rgba(79,140,255,.35);
@@ -30,14 +28,16 @@ button:active{transform:scale(.97)}
 .toggle{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:13px;color:#c3cfec}
 input[type=checkbox]{width:19px;height:19px;accent-color:#28d3b0}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);
-border-radius:16px;padding:13px}
+.stat{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:13px}
 .stat .k{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#8fa3d8}
 .stat .v{font-size:19px;font-weight:700;margin-top:5px}
 .up{color:#28d3b0}
-input[type=range]{width:100%;margin:6px 0 4px;accent-color:#4f8cff;height:26px}
+input[type=range]{width:100%;margin:6px 0 10px;accent-color:#4f8cff;height:28px}
 .yearbadge{display:inline-block;padding:5px 13px;border-radius:999px;font-size:13px;font-weight:600;
-background:linear-gradient(135deg,#4f8cff,#28d3b0);margin-bottom:10px}
+background:linear-gradient(135deg,#4f8cff,#28d3b0);margin-bottom:8px}
+/* CRITICAL: charts need a sized parent */
+.chartbox{position:relative;width:100%;height:250px}
+.chartbox.donut{height:290px}
 .row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);
 animation:fade .45s ease both}
 .row:last-child{border-bottom:0}
@@ -48,8 +48,9 @@ animation:fade .45s ease both}
 @keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 .bar{height:5px;border-radius:4px;background:rgba(255,255,255,.10);overflow:hidden;margin-top:5px}
 .bar i{display:block;height:100%;border-radius:4px;transition:width .6s cubic-bezier(.22,1,.36,1)}
-.note{font-size:11px;color:#7d8ab0;line-height:1.65;margin-top:6px}
-canvas{max-height:250px}
+.note{font-size:11px;color:#7d8ab0;line-height:1.65;margin-top:10px}
+.err{display:none;background:rgba(255,107,138,.14);border:1px solid rgba(255,107,138,.4);
+color:#ffb3c2;padding:12px;border-radius:12px;font-size:12.5px;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -57,16 +58,18 @@ canvas{max-height:250px}
 <h1>Investment Planner</h1>
 <div class="sub">Growth projection &amp; year-by-year asset allocation</div>
 
+<div class="err" id="err">Chart library could not load. Check your internet connection and reload.</div>
+
 <div class="card">
   <h2>Your Plan</h2>
   <div class="grid">
-    <div><label>Current age</label><input type="number" id="age" value="30"></div>
-    <div><label>Years to invest</label><input type="number" id="years" value="30"></div>
-    <div><label>Starting amount</label><input type="number" id="initial" value="10000"></div>
-    <div><label>Monthly contribution</label><input type="number" id="monthly" value="500"></div>
+    <div><label>Current age</label><input type="number" id="age" value="30" min="1" max="99" inputmode="numeric"></div>
+    <div><label>Years to invest</label><input type="number" id="years" value="30" min="1" max="60" inputmode="numeric"></div>
+    <div><label>Starting amount</label><input type="number" id="initial" value="10000" min="0" inputmode="decimal"></div>
+    <div><label>Monthly contribution</label><input type="number" id="monthly" value="500" min="0" inputmode="decimal"></div>
   </div>
   <label>Expected annual return (%)</label>
-  <input type="number" id="ret" value="7" step="0.1">
+  <input type="number" id="ret" value="7" step="0.1" inputmode="decimal">
   <div class="toggle">
     <input type="checkbox" id="glide" checked>
     <span>Auto-calculate return from allocation mix</span>
@@ -83,205 +86,208 @@ canvas{max-height:250px}
 
 <div class="card">
   <h2>Portfolio Growth</h2>
-  <canvas id="growthChart"></canvas>
+  <div class="chartbox"><canvas id="growthChart"></canvas></div>
 </div>
 
 <div class="card">
   <h2>Allocation Explorer</h2>
   <div class="yearbadge" id="yearLabel">Year 0</div>
-  <input type="range" id="yearSlider" min="0" max="30" value="0">
-  <canvas id="allocChart"></canvas>
+  <input type="range" id="yearSlider" min="0" max="30" value="0" step="1">
+  <div class="chartbox donut"><canvas id="allocChart"></canvas></div>
   <div id="suggestions"></div>
   <div class="note">Educational model only. Asset classes follow a standard age-based glide path;
-  fund tickers are common examples, not recommendations. Returns are assumptions, not guarantees.</div>
+  tickers are common examples, not recommendations. Returns are assumptions, not guarantees.</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-const COLORS = ['#4f8cff','#28d3b0','#f5a623','#9b7bff','#ff6b8a'];
-const EXAMPLES = {
-  "US Total Market": "VTI · VOO · SPY",
-  "International":   "VXUS · VEA · IEFA",
-  "Small / Mid Cap": "VB · IJH · VBR",
-  "Bonds":           "BND · AGG · SHY",
-  "Gold / REIT":     "GLD · VNQ · SCHH"
-};
-const ASSUMED = {
-  "US Total Market":.075, "International":.070, "Small / Mid Cap":.080,
-  "Bonds":.035, "Gold / REIT":.050
-};
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
 
-function allocationForAge(age){
-  const equity = Math.max(20, Math.min(90, 110 - age));
-  const alt = 10, bonds = 100 - equity - alt;
-  const a = {
-    "US Total Market": Math.round(equity*.50),
-    "International":   Math.round(equity*.30),
-    "Small / Mid Cap": Math.round(equity*.20),
-    "Bonds":           bonds,
-    "Gold / REIT":     alt
+  if (typeof Chart === "undefined") { $("err").style.display = "block"; return; }
+
+  var COLORS = ['#4f8cff','#28d3b0','#f5a623','#9b7bff','#ff6b8a'];
+  var KEYS   = ["US Total Market","International","Small / Mid Cap","Bonds","Gold / REIT"];
+  var EXAMPLES = {
+    "US Total Market":"VTI · VOO · SPY",
+    "International":"VXUS · VEA · IEFA",
+    "Small / Mid Cap":"VB · IJH · VBR",
+    "Bonds":"BND · AGG · SHY",
+    "Gold / REIT":"GLD · VNQ · SCHH"
   };
-  const sum = Object.values(a).reduce((s,v)=>s+v,0);
-  a["US Total Market"] += 100 - sum;
-  return a;
-}
-function blendedReturn(age){
-  const a = allocationForAge(age);
-  return Object.entries(a).reduce((s,[k,v])=>s + (v/100)*ASSUMED[k], 0);
-}
-const money = n => '
+  var ASSUMED = {
+    "US Total Market":0.075, "International":0.070, "Small / Mid Cap":0.080,
+    "Bonds":0.035, "Gold / REIT":0.050
+  };
 
-### How to update on your iPhone
-1. Open your repository → tap `index.html`.
-2. Tap the **pencil** icon to edit.
-3. Select all existing text and delete it.
-4. Paste the code above.
-5. Tap **Commit changes** → **Commit changes**.
-6. Wait ~1–2 minutes, then refresh your Pages URL.
-
-### What you can tune easily
-- **`allocationForAge()`** — change `110 - age` to `120 - age` for a more aggressive glide path.
-- **`ASSUMED`** — adjust the expected return per asset class.
-- **`EXAMPLES`** — swap in tickers available in your own market.
-- **`COLORS`** — change the palette.
-
-If you'd rather keep your original design and just bolt on the charts, paste your existing code and I'll merge instead. Want me to add an inflation-adjusted "real value" line to the growth chart? + Math.round(n).toLocaleString('en-US');
-
-let growth, donut, series = [], startAge = 30;
-
-function project(){
-  startAge      = +age.value || 30;
-  const horizon = Math.max(1, Math.min(60, +years.value || 30));
-  const monthlyAdd = +monthly.value || 0;
-  const useGlide = glide.checked;
-  const manual = (+ret.value || 0)/100;
-
-  let bal = +initial.value || 0, invested = bal;
-  const labels=[0], vals=[bal], conts=[invested];
-  series = [bal];
-
-  for(let y=1; y<=horizon; y++){
-    const r = useGlide ? blendedReturn(startAge + y - 1) : manual;
-    const m = r/12;
-    for(let k=0;k<12;k++){ bal = bal*(1+m) + monthlyAdd; invested += monthlyAdd; }
-    labels.push(y); vals.push(bal); conts.push(invested); series.push(bal);
+  function clamp(v,lo,hi){ return Math.max(lo, Math.min(hi, v)); }
+  function num(el, def, lo, hi){
+    var v = parseFloat(el.value);
+    if (!isFinite(v)) v = def;
+    return clamp(v, lo, hi);
+  }
+  function money(n){
+    if (!isFinite(n)) n = 0;
+    return "$" + Math.round(n).toLocaleString("en-US");
   }
 
-  sFinal.textContent = money(bal);
-  sCont.textContent  = money(invested);
-  sGain.textContent  = money(bal - invested);
-  sMult.textContent  = (bal/Math.max(invested,1)).toFixed(2) + '×';
+  // Always sums to exactly 100, never negative
+  function allocationForAge(age){
+    var equity = clamp(Math.round(110 - age), 20, 90);
+    var alt    = 10;
+    var bonds  = 100 - equity - alt;
+    var us     = Math.round(equity * 0.50);
+    var intl   = Math.round(equity * 0.30);
+    var smid   = equity - us - intl;
+    return {
+      "US Total Market": us,
+      "International": intl,
+      "Small / Mid Cap": smid,
+      "Bonds": bonds,
+      "Gold / REIT": alt
+    };
+  }
 
-  yearSlider.max = horizon;
-  if(+yearSlider.value > horizon) yearSlider.value = horizon;
+  function blendedReturn(age){
+    var a = allocationForAge(age), r = 0;
+    for (var i=0;i<KEYS.length;i++) r += (a[KEYS[i]]/100) * ASSUMED[KEYS[i]];
+    return r;
+  }
 
-  drawGrowth(labels, vals, conts);
-  renderYear(+yearSlider.value);
-}
+  var growthChart = null, allocChart = null, series = [0], startAge = 30;
 
-function drawGrowth(labels, vals, conts){
-  const cfg = {
-    type:'line',
-    data:{ labels,
-      datasets:[
-        {label:'Portfolio Value',data:vals,borderColor:'#4f8cff',
-         backgroundColor:'rgba(79,140,255,.22)',fill:true,tension:.4,
-         pointRadius:0,borderWidth:2.5},
-        {label:'Total Invested',data:conts,borderColor:'#28d3b0',
-         borderDash:[5,4],fill:false,tension:.4,pointRadius:0,borderWidth:2}
-      ]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
-      animation:{duration:1200,easing:'easeOutQuart'},
-      plugins:{
-        legend:{labels:{color:'#9fb0d8',boxWidth:12,font:{size:11}}},
-        tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.parsed.y)}}
-      },
-      scales:{
-        x:{ticks:{color:'#7d8ab0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'},
-           title:{display:true,text:'Year',color:'#7d8ab0',font:{size:10}}},
-        y:{ticks:{color:'#7d8ab0',font:{size:10},
-           callback:v=> v>=1e6 ? '
+  function project(){
+    startAge      = Math.round(num($("age"), 30, 1, 99));
+    var horizon   = Math.round(num($("years"), 30, 1, 60));
+    var start     = num($("initial"), 0, 0, 1e12);
+    var monthlyAdd= num($("monthly"), 0, 0, 1e9);
+    var useGlide  = $("glide").checked;
+    var manual    = num($("ret"), 7, -20, 40) / 100;
 
-### How to update on your iPhone
-1. Open your repository → tap `index.html`.
-2. Tap the **pencil** icon to edit.
-3. Select all existing text and delete it.
-4. Paste the code above.
-5. Tap **Commit changes** → **Commit changes**.
-6. Wait ~1–2 minutes, then refresh your Pages URL.
+    $("ret").disabled = useGlide;
+    if (useGlide) $("ret").value = (blendedReturn(startAge)*100).toFixed(2);
 
-### What you can tune easily
-- **`allocationForAge()`** — change `110 - age` to `120 - age` for a more aggressive glide path.
-- **`ASSUMED`** — adjust the expected return per asset class.
-- **`EXAMPLES`** — swap in tickers available in your own market.
-- **`COLORS`** — change the palette.
+    var bal = start, invested = start;
+    var labels = [0], vals = [bal], conts = [invested];
+    series = [bal];
 
-If you'd rather keep your original design and just bolt on the charts, paste your existing code and I'll merge instead. Want me to add an inflation-adjusted "real value" line to the growth chart?+(v/1e6).toFixed(1)+'M' : '
-
-### How to update on your iPhone
-1. Open your repository → tap `index.html`.
-2. Tap the **pencil** icon to edit.
-3. Select all existing text and delete it.
-4. Paste the code above.
-5. Tap **Commit changes** → **Commit changes**.
-6. Wait ~1–2 minutes, then refresh your Pages URL.
-
-### What you can tune easily
-- **`allocationForAge()`** — change `110 - age` to `120 - age` for a more aggressive glide path.
-- **`ASSUMED`** — adjust the expected return per asset class.
-- **`EXAMPLES`** — swap in tickers available in your own market.
-- **`COLORS`** — change the palette.
-
-If you'd rather keep your original design and just bolt on the charts, paste your existing code and I'll merge instead. Want me to add an inflation-adjusted "real value" line to the growth chart?+(v/1e3).toFixed(0)+'k'},
-           grid:{color:'rgba(255,255,255,.05)'}}
-      }
+    for (var y=1; y<=horizon; y++){
+      var r = useGlide ? blendedReturn(startAge + y - 1) : manual;
+      var m = r/12;
+      for (var k=0;k<12;k++){ bal = bal*(1+m) + monthlyAdd; invested += monthlyAdd; }
+      labels.push(y); vals.push(bal); conts.push(invested); series.push(bal);
     }
-  };
-  if(growth) growth.destroy();
-  growth = new Chart(document.getElementById('growthChart'), cfg);
-}
 
-function renderYear(y){
-  const alloc = allocationForAge(startAge + y);
-  const keys = Object.keys(alloc), data = Object.values(alloc);
-  const val = series[y] !== undefined ? series[y] : 0;
+    $("sFinal").textContent = money(bal);
+    $("sCont").textContent  = money(invested);
+    $("sGain").textContent  = money(bal - invested);
+    $("sMult").textContent  = (bal / Math.max(invested,1)).toFixed(2) + "×";
 
-  yearLabel.textContent = 'Year ' + y + ' · Age ' + (startAge + y) + ' · ' + money(val);
+    var slider = $("yearSlider");
+    slider.max = String(horizon);
+    if (parseInt(slider.value,10) > horizon) slider.value = String(horizon);
 
-  if(!donut){
-    donut = new Chart(document.getElementById('allocChart'), {
-      type:'doughnut',
-      data:{labels:keys,datasets:[{data,backgroundColor:COLORS,borderWidth:0}]},
+    drawGrowth(labels, vals, conts);
+    renderYear(parseInt(slider.value,10) || 0);
+  }
+
+  function drawGrowth(labels, vals, conts){
+    if (growthChart){ growthChart.destroy(); growthChart = null; }
+    growthChart = new Chart($("growthChart").getContext("2d"), {
+      type:"line",
+      data:{ labels: labels, datasets:[
+        { label:"Portfolio Value", data: vals, borderColor:"#4f8cff",
+          backgroundColor:"rgba(79,140,255,.22)", fill:true, tension:.4,
+          pointRadius:0, borderWidth:2.5 },
+        { label:"Total Invested", data: conts, borderColor:"#28d3b0",
+          borderDash:[5,4], fill:false, tension:.4, pointRadius:0, borderWidth:2 }
+      ]},
       options:{
-        responsive:true, maintainAspectRatio:false, cutout:'64%',
-        animation:{animateRotate:true,duration:800},
+        responsive:true, maintainAspectRatio:false,
+        interaction:{ mode:"index", intersect:false },
+        animation:{ duration:1100, easing:"easeOutQuart" },
         plugins:{
-          legend:{position:'bottom',labels:{color:'#9fb0d8',boxWidth:11,padding:12,font:{size:11}}},
-          tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+'%'}}
+          legend:{ labels:{ color:"#9fb0d8", boxWidth:12, font:{size:11} } },
+          tooltip:{ callbacks:{ label:function(c){ return c.dataset.label + ": " + money(c.parsed.y); } } }
+        },
+        scales:{
+          x:{ ticks:{ color:"#7d8ab0", font:{size:10}, maxTicksLimit:8 },
+              grid:{ color:"rgba(255,255,255,.05)" },
+              title:{ display:true, text:"Year", color:"#7d8ab0", font:{size:10} } },
+          y:{ beginAtZero:true, grid:{ color:"rgba(255,255,255,.05)" },
+              ticks:{ color:"#7d8ab0", font:{size:10}, callback:function(v){
+                return v >= 1e6 ? "$"+(v/1e6).toFixed(1)+"M" : "$"+Math.round(v/1e3)+"k"; } } }
         }
       }
     });
-  } else {
-    donut.data.datasets[0].data = data;
-    donut.update();
   }
 
-  suggestions.innerHTML = keys.map((k,i)=>`
-    <div class="row" style="animation-delay:${i*55}ms">
-      <span class="dot" style="background:${COLORS[i]}"></span>
-      <div style="flex:1">
-        <div class="nm">${k}</div>
-        <div class="ex">${EXAMPLES[k]} &nbsp;·&nbsp; ${money(val*alloc[k]/100)}</div>
-        <div class="bar"><i style="width:${alloc[k]}%;background:${COLORS[i]}"></i></div>
-      </div>
-      <span class="pct">${alloc[k]}%</span>
-    </div>`).join('');
-}
+  function renderYear(y){
+    if (!series.length) return;
+    if (y < 0) y = 0;
+    if (y >= series.length) y = series.length - 1;
 
-document.getElementById('run').addEventListener('click', project);
-yearSlider.addEventListener('input', e => renderYear(+e.target.value));
-project();
+    var alloc = allocationForAge(startAge + y);
+    var data  = KEYS.map(function(k){ return alloc[k]; });
+    var val   = series[y];
+
+    $("yearLabel").textContent = "Year " + y + " · Age " + (startAge + y) + " · " + money(val);
+
+    if (!allocChart){
+      allocChart = new Chart($("allocChart").getContext("2d"), {
+        type:"doughnut",
+        data:{ labels: KEYS, datasets:[{ data: data, backgroundColor: COLORS, borderWidth:0 }] },
+        options:{
+          responsive:true, maintainAspectRatio:false, cutout:"62%",
+          animation:{ animateRotate:true, duration:700 },
+          plugins:{
+            legend:{ position:"bottom",
+              labels:{ color:"#9fb0d8", boxWidth:11, padding:11, font:{size:11} } },
+            tooltip:{ callbacks:{ label:function(c){ return c.label + ": " + c.parsed + "%"; } } }
+          }
+        }
+      });
+    } else {
+      allocChart.data.datasets[0].data = data;
+      allocChart.update();
+    }
+
+    var html = "";
+    for (var i=0;i<KEYS.length;i++){
+      var k = KEYS[i];
+      html += '<div class="row" style="animation-delay:'+(i*55)+'ms">'
+            +   '<span class="dot" style="background:'+COLORS[i]+'"></span>'
+            +   '<div style="flex:1">'
+            +     '<div class="nm">'+k+'</div>'
+            +     '<div class="ex">'+EXAMPLES[k]+' &nbsp;·&nbsp; '+money(val*alloc[k]/100)+'</div>'
+            +     '<div class="bar"><i style="width:'+alloc[k]+'%;background:'+COLORS[i]+'"></i></div>'
+            +   '</div>'
+            +   '<span class="pct">'+alloc[k]+'%</span>'
+            + '</div>';
+    }
+    $("suggestions").innerHTML = html;
+  }
+
+  // Events
+  $("run").addEventListener("click", project);
+  $("glide").addEventListener("change", project);
+  ["age","years","initial","monthly","ret"].forEach(function(id){
+    var t;
+    $(id).addEventListener("input", function(){
+      clearTimeout(t); t = setTimeout(project, 350);
+    });
+  });
+  $("yearSlider").addEventListener("input", function(e){
+    renderYear(parseInt(e.target.value,10) || 0);
+  });
+  window.addEventListener("resize", function(){
+    if (growthChart) growthChart.resize();
+    if (allocChart) allocChart.resize();
+  });
+
+  project();
+})();
 </script>
 
 </body>
