@@ -4,40 +4,47 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1020">
-<title>Investment Planner</title>
+<title>Retirement Planner</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding:16px 14px 44px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+body{margin:0;padding:16px 14px 48px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
 color:#e8ecf8;background:radial-gradient(1000px 600px at 15% -10%,#1e2a6b 0%,transparent 60%),
 radial-gradient(900px 500px at 110% 10%,#0f5f6b 0%,transparent 55%),#0b1020;min-height:100vh}
 h1{font-size:22px;margin:4px 0 2px}
 .sub{font-size:12.5px;color:#93a0c4;margin-bottom:16px}
 .card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);
 border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
-.card h2{font-size:13px;text-transform:uppercase;letter-spacing:1.1px;color:#8fa3d8;margin:0 0 12px}
-label{display:block;font-size:12px;color:#9fb0d8;margin:10px 0 5px}
-input[type=number]{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:1.1px;color:#8fa3d8;margin:0 0 6px}
+.card h2 span{display:block;text-transform:none;letter-spacing:0;font-size:11px;color:#6f7da4;margin-top:3px;font-weight:400}
+label{display:block;font-size:11.5px;color:#9fb0d8;margin:10px 0 5px}
+input[type=number]{width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
 background:rgba(0,0,0,.28);color:#fff;font-size:16px;outline:none}
 input[type=number]:focus{border-color:#4f8cff}
-input[type=number]:disabled{opacity:.45}
+input[type=number]:disabled{opacity:.4}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 button{width:100%;margin-top:16px;padding:14px;border:0;border-radius:14px;font-size:16px;font-weight:600;
 color:#fff;background:linear-gradient(135deg,#4f8cff,#28d3b0);box-shadow:0 8px 22px rgba(79,140,255,.35);
 transition:transform .15s ease}
 button:active{transform:scale(.97)}
-.toggle{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:13px;color:#c3cfec}
-input[type=checkbox]{width:19px;height:19px;accent-color:#28d3b0}
+button.ghost{background:rgba(255,255,255,.09);box-shadow:none;font-size:14px;font-weight:500;margin-top:9px}
+.toggle{display:flex;align-items:center;gap:9px;margin-top:13px;font-size:12.5px;color:#c3cfec}
+input[type=checkbox]{width:19px;height:19px;accent-color:#28d3b0;flex:0 0 19px}
+.verdict{border-radius:16px;padding:14px;margin-bottom:14px;font-size:13.5px;line-height:1.55;border:1px solid}
+.ok{background:rgba(40,211,176,.12);border-color:rgba(40,211,176,.45);color:#8ff0dc}
+.warn{background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.45);color:#ffd79a}
+.bad{background:rgba(255,107,138,.12);border-color:rgba(255,107,138,.45);color:#ffb3c2}
+.verdict b{display:block;font-size:15px;margin-bottom:4px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:13px}
-.stat .k{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#8fa3d8}
-.stat .v{font-size:19px;font-weight:700;margin-top:5px}
-.up{color:#28d3b0}
+.stat{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:12px}
+.stat .k{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:#8fa3d8;line-height:1.35}
+.stat .v{font-size:18px;font-weight:700;margin-top:5px}
+.stat .s{font-size:10.5px;color:#7d8ab0;margin-top:2px}
+.up{color:#28d3b0}.dn{color:#ff6b8a}.amber{color:#f5a623}
 input[type=range]{width:100%;margin:6px 0 10px;accent-color:#4f8cff;height:28px}
-.yearbadge{display:inline-block;padding:5px 13px;border-radius:999px;font-size:13px;font-weight:600;
+.yearbadge{display:inline-block;padding:5px 13px;border-radius:999px;font-size:12.5px;font-weight:600;
 background:linear-gradient(135deg,#4f8cff,#28d3b0);margin-bottom:8px}
-/* CRITICAL: charts need a sized parent */
-.chartbox{position:relative;width:100%;height:250px}
-.chartbox.donut{height:290px}
+.chartbox{position:relative;width:100%;height:255px}
+.chartbox.donut{height:295px}
 .row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);
 animation:fade .45s ease both}
 .row:last-child{border-bottom:0}
@@ -51,242 +58,408 @@ animation:fade .45s ease both}
 .note{font-size:11px;color:#7d8ab0;line-height:1.65;margin-top:10px}
 .err{display:none;background:rgba(255,107,138,.14);border:1px solid rgba(255,107,138,.4);
 color:#ffb3c2;padding:12px;border-radius:12px;font-size:12.5px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+th{text-align:right;color:#8fa3d8;font-weight:600;padding:7px 4px;font-size:10.5px;
+text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.12)}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.05);text-align:right}
+tr.ret td{color:#f5a623}
+.scroll{max-height:290px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 </style>
 </head>
 <body>
 
-<h1>Investment Planner</h1>
-<div class="sub">Growth projection &amp; year-by-year asset allocation</div>
+<h1>Retirement Planner</h1>
+<div class="sub">Save → retire → draw income, projected to age 90</div>
 
-<div class="err" id="err">Chart library could not load. Check your internet connection and reload.</div>
+<div class="err" id="err">Chart library could not load. Check your connection and reload.</div>
 
 <div class="card">
-  <h2>Your Plan</h2>
+  <h2>Phase 1 — Building <span>While you're still working</span></h2>
   <div class="grid">
-    <div><label>Current age</label><input type="number" id="age" value="30" min="1" max="99" inputmode="numeric"></div>
-    <div><label>Years to invest</label><input type="number" id="years" value="30" min="1" max="60" inputmode="numeric"></div>
+    <div><label>Current age</label><input type="number" id="age" value="30" min="18" max="89" inputmode="numeric"></div>
+    <div><label>Retirement age</label><input type="number" id="retireAge" value="60" min="30" max="90" inputmode="numeric"></div>
     <div><label>Starting amount</label><input type="number" id="initial" value="10000" min="0" inputmode="decimal"></div>
     <div><label>Monthly contribution</label><input type="number" id="monthly" value="500" min="0" inputmode="decimal"></div>
+  </div>
+  <label>Annual contribution increase (%) — raises each year</label>
+  <input type="number" id="raise" value="3" step="0.5" inputmode="decimal">
+</div>
+
+<div class="card">
+  <h2>Phase 2 — Drawing <span>Income after you retire</span></h2>
+  <label>Desired monthly income <b>in today's money</b></label>
+  <input type="number" id="income" value="2500" min="0" inputmode="decimal">
+  <div class="grid">
+    <div><label>Pension / SS monthly (today's $)</label><input type="number" id="pension" value="0" min="0" inputmode="decimal"></div>
+    <div><label>Pension starts at age</label><input type="number" id="pensionAge" value="67" min="50" max="90" inputmode="numeric"></div>
+  </div>
+  <label>Plan until age</label>
+  <input type="number" id="endAge" value="90" min="60" max="110" inputmode="numeric">
+  <button class="ghost" id="useMax">Use my maximum sustainable income</button>
+</div>
+
+<div class="card">
+  <h2>Assumptions</h2>
+  <div class="grid">
+    <div><label>Inflation (%)</label><input type="number" id="infl" value="3" step="0.1" inputmode="decimal"></div>
+    <div><label>Fund fees / yr (%)</label><input type="number" id="fee" value="0.2" step="0.05" inputmode="decimal"></div>
   </div>
   <label>Expected annual return (%)</label>
   <input type="number" id="ret" value="7" step="0.1" inputmode="decimal">
   <div class="toggle">
     <input type="checkbox" id="glide" checked>
-    <span>Auto-calculate return from allocation mix</span>
+    <span>Auto-calculate return from age-based allocation</span>
   </div>
-  <button id="run">Calculate</button>
+  <div class="toggle">
+    <input type="checkbox" id="realMode">
+    <span>Show chart in today's money (inflation-adjusted)</span>
+  </div>
+  <button id="run">Recalculate</button>
 </div>
 
+<div class="verdict warn" id="verdict"><b>—</b><span>Enter your numbers above.</span></div>
+
 <div class="stats">
-  <div class="stat"><div class="k">Final Value</div><div class="v up" id="sFinal">—</div></div>
-  <div class="stat"><div class="k">Total Invested</div><div class="v" id="sCont">—</div></div>
-  <div class="stat"><div class="k">Total Growth</div><div class="v up" id="sGain">—</div></div>
-  <div class="stat"><div class="k">Growth Multiple</div><div class="v" id="sMult">—</div></div>
+  <div class="stat"><div class="k">Pot at retirement</div><div class="v up" id="sPot">—</div><div class="s" id="sPotReal">—</div></div>
+  <div class="stat"><div class="k">Money lasts until</div><div class="v" id="sLasts">—</div><div class="s" id="sLastsSub">—</div></div>
+  <div class="stat"><div class="k">Max sustainable income</div><div class="v amber" id="sMax">—</div><div class="s">per month, today's money</div></div>
+  <div class="stat"><div class="k">Initial withdrawal rate</div><div class="v" id="sSwr">—</div><div class="s" id="sSwrSub">—</div></div>
+  <div class="stat"><div class="k">Total contributed</div><div class="v" id="sCont">—</div><div class="s">out of your pocket</div></div>
+  <div class="stat"><div class="k">Total withdrawn</div><div class="v" id="sWd">—</div><div class="s">over retirement</div></div>
+  <div class="stat"><div class="k">Investment growth</div><div class="v up" id="sGain">—</div><div class="s">what the market added</div></div>
+  <div class="stat"><div class="k">Target number (25×)</div><div class="v" id="sFire">—</div><div class="s" id="sFireSub">—</div></div>
 </div>
 
 <div class="card">
-  <h2>Portfolio Growth</h2>
+  <h2>Portfolio Over Your Lifetime</h2>
   <div class="chartbox"><canvas id="growthChart"></canvas></div>
 </div>
 
 <div class="card">
   <h2>Allocation Explorer</h2>
-  <div class="yearbadge" id="yearLabel">Year 0</div>
-  <input type="range" id="yearSlider" min="0" max="30" value="0" step="1">
+  <div class="yearbadge" id="yearLabel">Age —</div>
+  <input type="range" id="yearSlider" min="0" max="60" value="0" step="1">
   <div class="chartbox donut"><canvas id="allocChart"></canvas></div>
   <div id="suggestions"></div>
-  <div class="note">Educational model only. Asset classes follow a standard age-based glide path;
-  tickers are common examples, not recommendations. Returns are assumptions, not guarantees.</div>
+  <div class="note">Educational model only. Allocations follow a standard age-based glide path;
+  tickers are common examples, not recommendations. Real markets vary year to year — nothing here is guaranteed.</div>
+</div>
+
+<div class="card">
+  <h2>Year-by-Year Table</h2>
+  <div class="scroll"><table id="tbl">
+    <thead><tr><th>Age</th><th>In</th><th>Out</th><th>Balance</th><th>Today's $</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 (function(){
-  "use strict";
-  var $ = function(id){ return document.getElementById(id); };
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+if (typeof Chart === "undefined"){ $("err").style.display="block"; return; }
 
-  if (typeof Chart === "undefined") { $("err").style.display = "block"; return; }
+var COLORS=['#4f8cff','#28d3b0','#f5a623','#9b7bff','#ff6b8a'];
+var KEYS=["US Total Market","International","Small / Mid Cap","Bonds","Gold / REIT"];
+var EXAMPLES={
+  "US Total Market":"VTI · VOO · SPY",
+  "International":"VXUS · VEA · IEFA",
+  "Small / Mid Cap":"VB · IJH · VBR",
+  "Bonds":"BND · AGG · SHY",
+  "Gold / REIT":"GLD · VNQ · SCHH"
+};
+var ASSUMED={"US Total Market":.075,"International":.070,"Small / Mid Cap":.080,"Bonds":.035,"Gold / REIT":.050};
 
-  var COLORS = ['#4f8cff','#28d3b0','#f5a623','#9b7bff','#ff6b8a'];
-  var KEYS   = ["US Total Market","International","Small / Mid Cap","Bonds","Gold / REIT"];
-  var EXAMPLES = {
-    "US Total Market":"VTI · VOO · SPY",
-    "International":"VXUS · VEA · IEFA",
-    "Small / Mid Cap":"VB · IJH · VBR",
-    "Bonds":"BND · AGG · SHY",
-    "Gold / REIT":"GLD · VNQ · SCHH"
-  };
-  var ASSUMED = {
-    "US Total Market":0.075, "International":0.070, "Small / Mid Cap":0.080,
-    "Bonds":0.035, "Gold / REIT":0.050
-  };
+function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+function num(el,def,lo,hi){ var v=parseFloat(el.value); if(!isFinite(v)) v=def; return clamp(v,lo,hi); }
+function money(n){ if(!isFinite(n)) n=0; return (n<0?"-$":"$")+Math.round(Math.abs(n)).toLocaleString("en-US"); }
+function moneyK(n){
+  var a=Math.abs(n);
+  if(a>=1e6) return "$"+(n/1e6).toFixed(2)+"M";
+  if(a>=1e3) return "$"+Math.round(n/1e3)+"k";
+  return "$"+Math.round(n);
+}
 
-  function clamp(v,lo,hi){ return Math.max(lo, Math.min(hi, v)); }
-  function num(el, def, lo, hi){
-    var v = parseFloat(el.value);
-    if (!isFinite(v)) v = def;
-    return clamp(v, lo, hi);
-  }
-  function money(n){
-    if (!isFinite(n)) n = 0;
-    return "$" + Math.round(n).toLocaleString("en-US");
-  }
+function allocationForAge(age){
+  var eq=clamp(Math.round(110-age),20,90), alt=10, bonds=100-eq-alt;
+  var us=Math.round(eq*.50), intl=Math.round(eq*.30), smid=eq-us-intl;
+  return {"US Total Market":us,"International":intl,"Small / Mid Cap":smid,"Bonds":bonds,"Gold / REIT":alt};
+}
+function blendedReturn(age){
+  var a=allocationForAge(age), r=0;
+  for(var i=0;i<KEYS.length;i++) r+=(a[KEYS[i]]/100)*ASSUMED[KEYS[i]];
+  return r;
+}
 
-  // Always sums to exactly 100, never negative
-  function allocationForAge(age){
-    var equity = clamp(Math.round(110 - age), 20, 90);
-    var alt    = 10;
-    var bonds  = 100 - equity - alt;
-    var us     = Math.round(equity * 0.50);
-    var intl   = Math.round(equity * 0.30);
-    var smid   = equity - us - intl;
-    return {
-      "US Total Market": us,
-      "International": intl,
-      "Small / Mid Cap": smid,
-      "Bonds": bonds,
-      "Gold / REIT": alt
-    };
-  }
+function readInputs(){
+  var p={};
+  p.age       = Math.round(num($("age"),30,18,89));
+  p.retireAge = Math.round(num($("retireAge"),60,p.age+1,95));
+  p.endAge    = Math.round(num($("endAge"),90,p.retireAge+1,110));
+  p.initial   = num($("initial"),0,0,1e12);
+  p.monthly   = num($("monthly"),0,0,1e9);
+  p.raise     = num($("raise"),0,0,20)/100;
+  p.income    = num($("income"),0,0,1e9);
+  p.pension   = num($("pension"),0,0,1e9);
+  p.pensionAge= Math.round(num($("pensionAge"),67,50,110));
+  p.infl      = num($("infl"),0,0,20)/100;
+  p.fee       = num($("fee"),0,0,5)/100;
+  p.useGlide  = $("glide").checked;
+  p.manual    = num($("ret"),7,-20,40)/100;
+  return p;
+}
 
-  function blendedReturn(age){
-    var a = allocationForAge(age), r = 0;
-    for (var i=0;i<KEYS.length;i++) r += (a[KEYS[i]]/100) * ASSUMED[KEYS[i]];
-    return r;
-  }
+// Two-phase monthly simulation
+function simulate(p, incomeToday){
+  var months=(p.endAge-p.age)*12, bal=p.initial, invested=p.initial;
+  var withdrawn=0, potAtRetire=0, depletedAge=null, firstYearWd=0;
+  var labels=[p.age], nom=[bal], real=[bal], inv=[invested];
+  var yIn=0, yOut=0, rows=[];
 
-  var growthChart = null, allocChart = null, series = [0], startAge = 30;
+  for(var m=1;m<=months;m++){
+    var yIdx=Math.floor((m-1)/12), curAge=p.age+yIdx;
+    var r=(p.useGlide?blendedReturn(curAge):p.manual)-p.fee;
+    var mr=Math.pow(1+r,1/12)-1;
+    bal=bal*(1+mr);
 
-  function project(){
-    startAge      = Math.round(num($("age"), 30, 1, 99));
-    var horizon   = Math.round(num($("years"), 30, 1, 60));
-    var start     = num($("initial"), 0, 0, 1e12);
-    var monthlyAdd= num($("monthly"), 0, 0, 1e9);
-    var useGlide  = $("glide").checked;
-    var manual    = num($("ret"), 7, -20, 40) / 100;
-
-    $("ret").disabled = useGlide;
-    if (useGlide) $("ret").value = (blendedReturn(startAge)*100).toFixed(2);
-
-    var bal = start, invested = start;
-    var labels = [0], vals = [bal], conts = [invested];
-    series = [bal];
-
-    for (var y=1; y<=horizon; y++){
-      var r = useGlide ? blendedReturn(startAge + y - 1) : manual;
-      var m = r/12;
-      for (var k=0;k<12;k++){ bal = bal*(1+m) + monthlyAdd; invested += monthlyAdd; }
-      labels.push(y); vals.push(bal); conts.push(invested); series.push(bal);
-    }
-
-    $("sFinal").textContent = money(bal);
-    $("sCont").textContent  = money(invested);
-    $("sGain").textContent  = money(bal - invested);
-    $("sMult").textContent  = (bal / Math.max(invested,1)).toFixed(2) + "×";
-
-    var slider = $("yearSlider");
-    slider.max = String(horizon);
-    if (parseInt(slider.value,10) > horizon) slider.value = String(horizon);
-
-    drawGrowth(labels, vals, conts);
-    renderYear(parseInt(slider.value,10) || 0);
-  }
-
-  function drawGrowth(labels, vals, conts){
-    if (growthChart){ growthChart.destroy(); growthChart = null; }
-    growthChart = new Chart($("growthChart").getContext("2d"), {
-      type:"line",
-      data:{ labels: labels, datasets:[
-        { label:"Portfolio Value", data: vals, borderColor:"#4f8cff",
-          backgroundColor:"rgba(79,140,255,.22)", fill:true, tension:.4,
-          pointRadius:0, borderWidth:2.5 },
-        { label:"Total Invested", data: conts, borderColor:"#28d3b0",
-          borderDash:[5,4], fill:false, tension:.4, pointRadius:0, borderWidth:2 }
-      ]},
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        interaction:{ mode:"index", intersect:false },
-        animation:{ duration:1100, easing:"easeOutQuart" },
-        plugins:{
-          legend:{ labels:{ color:"#9fb0d8", boxWidth:12, font:{size:11} } },
-          tooltip:{ callbacks:{ label:function(c){ return c.dataset.label + ": " + money(c.parsed.y); } } }
-        },
-        scales:{
-          x:{ ticks:{ color:"#7d8ab0", font:{size:10}, maxTicksLimit:8 },
-              grid:{ color:"rgba(255,255,255,.05)" },
-              title:{ display:true, text:"Year", color:"#7d8ab0", font:{size:10} } },
-          y:{ beginAtZero:true, grid:{ color:"rgba(255,255,255,.05)" },
-              ticks:{ color:"#7d8ab0", font:{size:10}, callback:function(v){
-                return v >= 1e6 ? "$"+(v/1e6).toFixed(1)+"M" : "$"+Math.round(v/1e3)+"k"; } } }
-        }
-      }
-    });
-  }
-
-  function renderYear(y){
-    if (!series.length) return;
-    if (y < 0) y = 0;
-    if (y >= series.length) y = series.length - 1;
-
-    var alloc = allocationForAge(startAge + y);
-    var data  = KEYS.map(function(k){ return alloc[k]; });
-    var val   = series[y];
-
-    $("yearLabel").textContent = "Year " + y + " · Age " + (startAge + y) + " · " + money(val);
-
-    if (!allocChart){
-      allocChart = new Chart($("allocChart").getContext("2d"), {
-        type:"doughnut",
-        data:{ labels: KEYS, datasets:[{ data: data, backgroundColor: COLORS, borderWidth:0 }] },
-        options:{
-          responsive:true, maintainAspectRatio:false, cutout:"62%",
-          animation:{ animateRotate:true, duration:700 },
-          plugins:{
-            legend:{ position:"bottom",
-              labels:{ color:"#9fb0d8", boxWidth:11, padding:11, font:{size:11} } },
-            tooltip:{ callbacks:{ label:function(c){ return c.label + ": " + c.parsed + "%"; } } }
-          }
-        }
-      });
+    if(curAge < p.retireAge){
+      var c=p.monthly*Math.pow(1+p.raise,yIdx);
+      bal+=c; invested+=c; yIn+=c;
     } else {
-      allocChart.data.datasets[0].data = data;
-      allocChart.update();
+      var f=Math.pow(1+p.infl,yIdx);
+      var need=incomeToday*f;
+      var pen=(curAge>=p.pensionAge)?p.pension*f:0;
+      var take=Math.max(0,need-pen);
+      take=Math.min(take,Math.max(bal,0));
+      bal-=take; withdrawn+=take; yOut+=take;
+      if(curAge===p.retireAge) firstYearWd+=take;
+      if(bal<=0.005 && depletedAge===null) depletedAge=curAge+((m-1)%12)/12;
     }
 
-    var html = "";
-    for (var i=0;i<KEYS.length;i++){
-      var k = KEYS[i];
-      html += '<div class="row" style="animation-delay:'+(i*55)+'ms">'
-            +   '<span class="dot" style="background:'+COLORS[i]+'"></span>'
-            +   '<div style="flex:1">'
-            +     '<div class="nm">'+k+'</div>'
-            +     '<div class="ex">'+EXAMPLES[k]+' &nbsp;·&nbsp; '+money(val*alloc[k]/100)+'</div>'
-            +     '<div class="bar"><i style="width:'+alloc[k]+'%;background:'+COLORS[i]+'"></i></div>'
-            +   '</div>'
-            +   '<span class="pct">'+alloc[k]+'%</span>'
-            + '</div>';
+    if(m%12===0){
+      var yr=m/12, a=p.age+yr, disc=Math.pow(1+p.infl,yr);
+      if(a===p.retireAge) potAtRetire=bal;
+      labels.push(a); nom.push(bal); real.push(bal/disc); inv.push(invested);
+      rows.push({age:a,inn:yIn,out:yOut,bal:bal,realBal:bal/disc,ret:a>p.retireAge});
+      yIn=0; yOut=0;
     }
-    $("suggestions").innerHTML = html;
+  }
+  if(p.retireAge===p.age) potAtRetire=p.initial;
+  return {labels:labels,nom:nom,real:real,inv:inv,rows:rows,
+    withdrawn:withdrawn,invested:invested,potAtRetire:potAtRetire,
+    depletedAge:depletedAge,endBal:bal,firstYearWd:firstYearWd};
+}
+
+// Binary search: largest today's-money income that survives to endAge
+function maxSustainable(p){
+  var lo=0, hi=200000;
+  for(var i=0;i<50;i++){
+    var mid=(lo+hi)/2;
+    var s=simulate(p,mid);
+    if(s.depletedAge===null && s.endBal>=0) lo=mid; else hi=mid;
+  }
+  return lo;
+}
+
+var growthChart=null, allocChart=null, state=null;
+
+Chart.register({
+  id:"retireLine",
+  afterDatasetsDraw:function(c){
+    if(c.$retire===undefined) return;
+    var xs=c.scales.x, ys=c.scales.y;
+    var idx=c.data.labels.indexOf(c.$retire); if(idx<0) return;
+    var px=xs.getPixelForValue(c.data.labels[idx]), g=c.ctx;
+    g.save();
+    g.strokeStyle="rgba(245,166,35,.8)"; g.lineWidth=1.5; g.setLineDash([4,4]);
+    g.beginPath(); g.moveTo(px,ys.top); g.lineTo(px,ys.bottom); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle="#f5a623"; g.font="10px -apple-system,sans-serif"; g.textAlign="center";
+    g.fillText("Retire "+c.$retire, px, ys.top+10);
+    g.restore();
+  }
+});
+
+function project(){
+  var p=readInputs();
+  $("ret").disabled=p.useGlide;
+  if(p.useGlide) $("ret").value=(blendedReturn(p.age)*100).toFixed(2);
+
+  var s=simulate(p,p.income);
+  var mx=maxSustainable(p);
+  state={p:p,s:s,max:mx};
+
+  var discRet=Math.pow(1+p.infl,p.retireAge-p.age);
+  var discEnd=Math.pow(1+p.infl,p.endAge-p.age);
+
+  $("sPot").textContent=money(s.potAtRetire);
+  $("sPotReal").textContent="≈ "+money(s.potAtRetire/discRet)+" in today's money";
+
+  if(s.depletedAge===null){
+    $("sLasts").textContent="Age "+p.endAge+" ✓";
+    $("sLasts").className="v up";
+    $("sLastsSub").textContent=money(s.endBal)+" left over";
+  } else {
+    $("sLasts").textContent="Age "+Math.floor(s.depletedAge);
+    $("sLasts").className="v dn";
+    $("sLastsSub").textContent=(p.endAge-Math.floor(s.depletedAge))+" years short";
   }
 
-  // Events
-  $("run").addEventListener("click", project);
-  $("glide").addEventListener("change", project);
-  ["age","years","initial","monthly","ret"].forEach(function(id){
-    var t;
-    $(id).addEventListener("input", function(){
-      clearTimeout(t); t = setTimeout(project, 350);
-    });
-  });
-  $("yearSlider").addEventListener("input", function(e){
-    renderYear(parseInt(e.target.value,10) || 0);
-  });
-  window.addEventListener("resize", function(){
-    if (growthChart) growthChart.resize();
-    if (allocChart) allocChart.resize();
-  });
+  $("sMax").textContent=money(mx);
 
+  var swr=s.potAtRetire>0 ? (s.firstYearWd/s.potAtRetire*100) : 0;
+  $("sSwr").textContent=swr.toFixed(2)+"%";
+  $("sSwr").className="v "+(swr<=4?"up":swr<=5?"amber":"dn");
+  $("sSwrSub").textContent=swr<=4?"within the 4% guideline":"above the 4% guideline";
+
+  $("sCont").textContent=money(s.invested);
+  $("sWd").textContent=money(s.withdrawn);
+  $("sGain").textContent=money(s.endBal+s.withdrawn-s.invested);
+
+  var fire=p.income*12*discRet*25;
+  $("sFire").textContent=moneyK(fire);
+  $("sFire").className="v "+(s.potAtRetire>=fire?"up":"amber");
+  $("sFireSub").textContent=s.potAtRetire>=fire?"you're above target":"gap "+moneyK(fire-s.potAtRetire);
+
+  var v=$("verdict");
+  if(s.depletedAge===null){
+    v.className="verdict ok";
+    v.innerHTML="<b>On track ✓</b>Your plan supports "+money(p.income)+
+      "/month (today's money) all the way to age "+p.endAge+", leaving "+money(s.endBal)+
+      " (≈"+money(s.endBal/discEnd)+" in today's money).";
+  } else if(s.depletedAge>=p.endAge-5){
+    v.className="verdict warn";
+    v.innerHTML="<b>Very tight ⚠</b>Money runs out around age "+Math.floor(s.depletedAge)+
+      " — only just short. Your sustainable income is about "+money(mx)+"/month.";
+  } else {
+    v.className="verdict bad";
+    v.innerHTML="<b>Shortfall ✕</b>Money runs out at age "+Math.floor(s.depletedAge)+", "+
+      (p.endAge-Math.floor(s.depletedAge))+" years early. Either cut spending to "+money(mx)+
+      "/month, retire later, or save more each month.";
+  }
+
+  var sl=$("yearSlider");
+  sl.min="0"; sl.max=String(p.endAge-p.age);
+  if(parseInt(sl.value,10)>p.endAge-p.age) sl.value=String(p.endAge-p.age);
+
+  drawGrowth();
+  renderYear(parseInt(sl.value,10)||0);
+  buildTable();
+}
+
+function drawGrowth(){
+  var p=state.p, s=state.s, useReal=$("realMode").checked;
+  var main=useReal?s.real:s.nom;
+  var invSeries=useReal?s.inv.map(function(v,i){ return v/Math.pow(1+p.infl,i); }):s.inv;
+
+  if(growthChart){ growthChart.destroy(); growthChart=null; }
+  growthChart=new Chart($("growthChart").getContext("2d"),{
+    type:"line",
+    data:{labels:s.labels,datasets:[
+      {label:useReal?"Value (today's $)":"Portfolio Value",data:main,borderColor:"#4f8cff",
+       backgroundColor:"rgba(79,140,255,.22)",fill:true,tension:.35,pointRadius:0,borderWidth:2.5},
+      {label:"Money you put in",data:invSeries,borderColor:"#28d3b0",borderDash:[5,4],
+       fill:false,tension:.35,pointRadius:0,borderWidth:2}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:"index",intersect:false},
+      animation:{duration:1000,easing:"easeOutQuart"},
+      plugins:{
+        legend:{labels:{color:"#9fb0d8",boxWidth:12,font:{size:11}}},
+        tooltip:{callbacks:{
+          title:function(c){ return "Age "+c[0].label; },
+          label:function(c){ return c.dataset.label+": "+money(c.parsed.y); }}}
+      },
+      scales:{
+        x:{ticks:{color:"#7d8ab0",font:{size:10},maxTicksLimit:9},
+           grid:{color:"rgba(255,255,255,.05)"},
+           title:{display:true,text:"Age",color:"#7d8ab0",font:{size:10}}},
+        y:{beginAtZero:true,grid:{color:"rgba(255,255,255,.05)"},
+           ticks:{color:"#7d8ab0",font:{size:10},callback:function(v){ return moneyK(v); }}}
+      }
+    }
+  });
+  growthChart.$retire=p.retireAge;
+  growthChart.update();
+}
+
+function renderYear(y){
+  var p=state.p, s=state.s;
+  y=clamp(y,0,s.nom.length-1);
+  var age=p.age+y, alloc=allocationForAge(age);
+  var data=KEYS.map(function(k){ return alloc[k]; });
+  var val=s.nom[y];
+  var phase=age<p.retireAge?"Building":"Drawing";
+
+  $("yearLabel").textContent="Age "+age+" · "+phase+" · "+money(val);
+
+  if(!allocChart){
+    allocChart=new Chart($("allocChart").getContext("2d"),{
+      type:"doughnut",
+      data:{labels:KEYS,datasets:[{data:data,backgroundColor:COLORS,borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:"62%",
+        animation:{animateRotate:true,duration:650},
+        plugins:{
+          legend:{position:"bottom",labels:{color:"#9fb0d8",boxWidth:11,padding:11,font:{size:11}}},
+          tooltip:{callbacks:{label:function(c){ return c.label+": "+c.parsed+"%"; }}}
+        }}
+    });
+  } else {
+    allocChart.data.datasets[0].data=data;
+    allocChart.update();
+  }
+
+  var html="";
+  for(var i=0;i<KEYS.length;i++){
+    var k=KEYS[i];
+    html+='<div class="row" style="animation-delay:'+(i*55)+'ms">'
+       +'<span class="dot" style="background:'+COLORS[i]+'"></span>'
+       +'<div style="flex:1"><div class="nm">'+k+'</div>'
+       +'<div class="ex">'+EXAMPLES[k]+' &nbsp;·&nbsp; '+money(val*alloc[k]/100)+'</div>'
+       +'<div class="bar"><i style="width:'+alloc[k]+'%;background:'+COLORS[i]+'"></i></div></div>'
+       +'<span class="pct">'+alloc[k]+'%</span></div>';
+  }
+  $("suggestions").innerHTML=html;
+}
+
+function buildTable(){
+  var rows=state.s.rows, h="";
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    h+='<tr'+(r.ret?' class="ret"':'')+'><td>'+r.age+'</td><td>'+
+       (r.inn>0?moneyK(r.inn):"—")+'</td><td>'+
+       (r.out>0?moneyK(r.out):"—")+'</td><td>'+
+       moneyK(r.bal)+'</td><td>'+moneyK(r.realBal)+'</td></tr>';
+  }
+  $("tbl").querySelector("tbody").innerHTML=h;
+}
+
+// Events
+$("run").addEventListener("click",project);
+$("glide").addEventListener("change",project);
+$("realMode").addEventListener("change",function(){ if(state) drawGrowth(); });
+$("useMax").addEventListener("click",function(){
+  if(!state) return;
+  $("income").value=Math.floor(state.max/10)*10;
   project();
+});
+["age","retireAge","endAge","initial","monthly","raise","income","pension","pensionAge","infl","fee","ret"]
+.forEach(function(id){
+  var t;
+  $(id).addEventListener("input",function(){ clearTimeout(t); t=setTimeout(project,400); });
+});
+$("yearSlider").addEventListener("input",function(e){
+  if(state) renderYear(parseInt(e.target.value,10)||0);
+});
+window.addEventListener("resize",function(){
+  if(growthChart) growthChart.resize();
+  if(allocChart) allocChart.resize();
+});
+
+project();
 })();
 </script>
 
