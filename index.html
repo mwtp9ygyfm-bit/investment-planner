@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#0f172a">
+
+  <title>My Investment Planner</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --green: #15803d;
+      --red: #dc2626;
+      --orange: #c2410c;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+    }
+
+    header {
+      padding:
+        calc(22px + env(safe-area-inset-top))
+        18px
+        24px;
+      background: linear-gradient(135deg, #0f172a, #2563eb);
+      color: white;
+    }
+
+    header div {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 0;
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding:
+        16px
+        12px
+        calc(40px + env(safe-area-inset-bottom));
+    }
+
+    .card {
+      margin-bottom: 14px;
+      padding: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    h2 {
+      margin: 0 0 5px;
+      font-size: 19px;
+    }
+
+    .description {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      color: var(--text);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    button {
+      padding: 12px 15px;
+      border: 0;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .primary {
+      color: white;
+      background: var(--blue);
+    }
+
+    .primary:active {
+      background: var(--blue-dark);
+    }
+
+    .secondary {
+      color: var(--blue);
+      background: #eff6ff;
+    }
+
+    .danger {
+      color: var(--red);
+      background: #fef2f2;
+    }
+
+    .full-button {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    details {
+      margin-top: 14px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 12px;
+    }
+
+    summary {
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    details .grid {
+      margin-top: 14px;
+    }
+
+    .asset-head,
+    .asset-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 0.9fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .asset-head {
+      margin-bottom: 7px;
+      padding: 0 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .asset-row {
+      margin-bottom: 8px;
+    }
+
+    .delete-button {
+      padding: 11px;
+    }
+
+    .asset-total {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-weight: 700;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .metric span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .positive {
+      color: var(--green);
+    }
+
+    .negative {
+      color: var(--red);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 13px;
+      margin-top: 12px;
+      overflow: hidden;
+      background: #e2e8f0;
+      border-radius: 99px;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #22c55e);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+
+    .result-message {
+      margin-top: 12px;
+      padding: 13px;
+      color: #1e3a8a;
+      background: #eff6ff;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 11px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    .overweight {
+      color: var(--orange);
+    }
+
+    .underweight {
+      color: var(--blue);
+    }
+
+    .suggestions {
+      margin: 14px 0 0;
+      padding-left: 20px;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .suggestions li {
+      margin-bottom: 7px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .actions button {
+      flex: 1;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 650px) {
+      .grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .asset-head {
+        display: none;
+      }
+
+      .asset-row {
+        grid-template-columns: 1fr 1fr;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 12px;
+      }
+
+      .asset-row .asset-name {
+        grid-column: 1 / -1;
+      }
+
+      .asset-row .delete-button {
+        grid-column: 1 / -1;
+      }
+
+      header h1 {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>My Investment Planner</h1>
+      <p>Track your assets and create a simple long-term investment plan.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. Your Investment Goal</h2>
+      <p class="description">
+        Enter your plan. You can change the advanced assumptions if needed.
+      </p>
+
+      <div class="grid">
+        <div class="field">
+          <label for="years">Years until retirement</label>
+          <input id="years" type="number" min="1" max="60" value="25">
+        </div>
+
+        <div class="field">
+          <label for="monthlyDCA">Monthly investment</label>
+          <input
+            id="monthlyDCA"
+            type="number"
+            min="0"
+            step="1000"
+            value="90000"
+          >
+        </div>
+
+        <div class="field">
+          <label for="monthlyIncome">
+            Desired monthly retirement income
+          </label>
+          <input
+            id="monthlyIncome"
+            type="number"
+            min="0"
+            step="1000"
+            value="100000"
+          >
+        </div>
+
+        <div class="field">
+          <label for="riskLevel">Risk level</label>
+          <select id="riskLevel">
+            <option value="conservative">Conservative</option>
+            <option value="balanced">Balanced</option>
+            <option value="growth" selected>Growth</option>
+            <option value="aggressive">Aggressive</option>
+          </select>
+        </div>
+      </div>
+
+      <details>
+        <summary>Advanced assumptions</summary>
+
+        <div class="grid">
+          <div class="field">
+            <label for="returnRate">Expected annual return (%)</label>
+            <input
+              id="returnRate"
+              type="number"
+              min="-10"
+              max="30"
+              step="0.1"
+              value="6"
+            >
+          </div>
+
+          <div class="field">
+            <label for="inflationRate">Annual inflation (%)</label>
+            <input
+              id="inflationRate"
+              type="number"
+              min="0"
+              max="20"
+              step="0.1"
+              value="2.5"
+            >
+          </div>
+
+          <div class="field">
+            <label for="withdrawalRate">
+              Retirement withdrawal rate (%)
+            </label>
+            <input
+              id="withdrawalRate"
+              type="number"
+              min="1"
+              max="10"
+              step="0.1"
+              value="3.5"
+            >
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>2. Current Asset Portfolio</h2>
+      <p class="description">
+        Add each account, fund, stock, bond, or cash position.
+      </p>
+
+      <div class="asset-head">
+        <span>Asset name</span>
+        <span>Category</span>
+        <span>Current value</span>
+        <span></span>
+      </div>
+
+      <div id="assetList"></div>
+
+      <button class="secondary" onclick="addAsset()">
+        + Add Asset
+      </button>
+
+      <div class="asset-total">
+        <span>Total portfolio</span>
+        <span id="portfolioTotal">฿0</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Retirement Projection</h2>
+      <p class="description">
+        Estimates are based on constant returns and do not guarantee results.
+      </p>
+
+      <div class="summary-grid">
+        <div class="metric">
+          <span>Projected portfolio at retirement</span>
+          <strong id="futurePortfolio">—</strong>
+        </div>
+
+        <div class="metric">
+          <span>Estimated retirement target</span>
+          <strong id="requiredPortfolio">—</strong>
+        </div>
+
+        <div class="metric">
+          <span>Future monthly income needed</span>
+          <strong id="futureIncome">—</strong>
+        </div>
+
+        <div class="metric">
+          <span>Projected surplus or shortfall</span>
+          <strong id="portfolioGap">—</strong>
+        </div>
+
+        <div class="metric">
+          <span>Estimated minimum monthly investment</span>
+          <strong id="requiredDCA">—</strong>
+        </div>
+
+        <div class="metric">
+          <span>Goal progress</span>
+          <strong id="progressText">—</strong>
+          <div class="progress-track">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="projectionMessage" class="result-message"></div>
+    </section>
+
+    <section class="card">
+      <h2>4. Suggested Investment Plan</h2>
+      <p class="description">
+        The plan directs new monthly contributions toward underweight
+        categories.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset category</th>
+              <th>Current</th>
+              <th>Target</th>
+              <th>Monthly investment</th>
+            </tr>
+          </thead>
+          <tbody id="allocationTable"></tbody>
+        </table>
+      </div>
+
+      <ul id="suggestions" class="suggestions"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Data</h2>
+
+      <div class="actions">
+        <button class="primary" onclick="saveData(true)">
+          Save
+        </button>
+
+        <button class="danger" onclick="resetData()">
+          Reset
+        </button>
+      </div>
+
+      <p class="small">
+        Your information is stored only in this browser. Clearing Safari
+        website data may delete it.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const categories = {
+      usStocks: "U.S. Stocks",
+      internationalStocks: "International Stocks",
+      bonds: "Bonds",
+      cash: "Cash"
+    };
+
+    const targetModels = {
+      conservative: {
+        usStocks: 30,
+        internationalStocks: 15,
+        bonds: 45,
+        cash: 10
+      },
+      balanced: {
+        usStocks: 45,
+        internationalStocks: 25,
+        bonds: 25,
+        cash: 5
+      },
+      growth: {
+        usStocks: 55,
+        internationalStocks: 30,
+        bonds: 10,
+        cash: 5
+      },
+      aggressive: {
+        usStocks: 65,
+        internationalStocks: 30,
+        bonds: 5,
+        cash: 0
+      }
+    };
+
+    const defaultAssets = [
+      {
+        name: "Cash / Emergency Fund",
+        category: "cash",
+        value: 0
+      },
+      {
+        name: "U.S. Stock Funds",
+        category: "usStocks",
+        value: 0
+      },
+      {
+        name: "International Stock Funds",
+        category: "internationalStocks",
+        value: 0
+      },
+      {
+        name: "Bond Funds",
+        category: "bonds",
+        value: 0
+      }
+    ];
+
+    let assets = JSON.parse(JSON.stringify(defaultAssets));
+
+    const settingIds = [
+      "years",
+      "monthlyDCA",
+      "monthlyIncome",
+      "riskLevel",
+      "returnRate",
+      "inflationRate",
+      "withdrawalRate"
+    ];
+
+    function getNumber(id) {
+      return Number(document.getElementById(id).value) || 0;
+    }
+
+    function formatMoney(value) {
+      if (!Number.isFinite(value)) {
+        return "—";
+      }
+
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "THB",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function formatPercent(value) {
+      if (!Number.isFinite(value)) {
+        return "0.0%";
+      }
+
+      return value.toFixed(1) + "%";
+    }
+
+    function calculateFutureValue(
+      startingAmount,
+      monthlyInvestment,
+      years,
+      annualReturn
+    ) {
+      const months = years * 12;
+      const monthlyRate = annualReturn / 100 / 12;
+
+      if (months <= 0) {
+        return startingAmount;
+      }
+
+      if (monthlyRate === 0) {
+        return startingAmount + monthlyInvestment * months;
+      }
+
+      const growth = Math.pow(1 + monthlyRate, months);
+
+      return (
+        startingAmount * growth +
+        monthlyInvestment * ((growth - 1) / monthlyRate)
+      );
+    }
+
+    function calculateRequiredMonthlyInvestment(
+      target,
+      startingAmount,
+      years,
+      annualReturn
+    ) {
+      const months = years * 12;
+      const monthlyRate = annualReturn / 100 / 12;
+
+      if (months <= 0) {
+        return 0;
+      }
+
+      if (monthlyRate === 0) {
+        return Math.max(
+          0,
+          (target - startingAmount) / months
+        );
+      }
+
+      const growth = Math.pow(1 + monthlyRate, months);
+      const futureStartingValue = startingAmount * growth;
+      const contributionFactor = (growth - 1) / monthlyRate;
+
+      return Math.max(
+        0,
+        (target - futureStartingValue) / contributionFactor
+      );
+    }
+
+    function getCategoryTotals() {
+      const totals = {
+        usStocks: 0,
+        internationalStocks: 0,
+        bonds: 0,
+        cash: 0
+      };
+
+      assets.forEach(asset => {
+        if (totals[asset.category] !== undefined) {
+          totals[asset.category] += Number(asset.value) || 0;
+        }
+      });
+
+      return totals;
+    }
+
+    function getPortfolioTotal() {
+      return assets.reduce(
+        (total, asset) => total + (Number(asset.value) || 0),
+        0
+      );
+    }
+
+    function renderAssets() {
+      const list = document.getElementById("assetList");
+      list.innerHTML = "";
+
+      assets.forEach((asset, index) => {
+        const row = document.createElement("div");
+        row.className = "asset-row";
+
+        const nameInput = document.createElement("input");
+        nameInput.className = "asset-name";
+        nameInput.type = "text";
+        nameInput.placeholder = "Asset name";
+        nameInput.value = asset.name;
+
+        nameInput.addEventListener("input", event => {
+          assets[index].name = event.target.value;
+          updateApp();
+        });
+
+        const categorySelect = document.createElement("select");
+
+        Object.entries(categories).forEach(([key, label]) => {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = label;
+
+          if (key === asset.category) {
+            option.selected = true;
+          }
+
+          categorySelect.appendChild(option);
+        });
+
+        categorySelect.addEventListener("change", event => {
+          assets[index].category = event.target.value;
+          updateApp();
+        });
+
+        const valueInput = document.createElement("input");
+        valueInput.type = "number";
+        valueInput.min = "0";
+        valueInput.step = "1000";
+        valueInput.placeholder = "Value";
+        valueInput.value = asset.value || "";
+
+        valueInput.addEventListener("input", event => {
+          assets[index].value = Number(event.target.value) || 0;
+          updateApp();
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "danger delete-button";
+        deleteButton.textContent = "Delete";
+
+        deleteButton.onclick = () => {
+          assets.splice(index, 1);
+          renderAssets();
+          updateApp();
+        };
+
+        row.appendChild(nameInput);
+        row.appendChild(categorySelect);
+        row.appendChild(valueInput);
+        row.appendChild(deleteButton);
+
+        list.appendChild(row);
+      });
+    }
+
+    function addAsset() {
+      assets.push({
+        name: "",
+        category: "usStocks",
+        value: 0
+      });
+
+      renderAssets();
+      saveData(false);
+    }
+
+    function calculateMonthlyPlan(
+      categoryTotals,
+      portfolioTotal,
+      monthlyDCA,
+      targets
+    ) {
+      const futureTotal = portfolioTotal + monthlyDCA;
+      const deficits = {};
+      let totalDeficit = 0;
+
+      Object.keys(categories).forEach(key => {
+        const desiredValue =
+          futureTotal * (targets[key] / 100);
+
+        deficits[key] = Math.max(
+          0,
+          desiredValue - categoryTotals[key]
+        );
+
+        totalDeficit += deficits[key];
+      });
+
+      const plan = {};
+
+      Object.keys(categories).forEach(key => {
+        if (monthlyDCA <= 0) {
+          plan[key] = 0;
+        } else if (portfolioTotal === 0 || totalDeficit === 0) {
+          plan[key] = monthlyDCA * (targets[key] / 100);
+        } else {
+          plan[key] =
+            monthlyDCA * (deficits[key] / totalDeficit);
+        }
+      });
+
+      return plan;
+    }
+
+    function renderAllocationPlan() {
+      const portfolioTotal = getPortfolioTotal();
+      const monthlyDCA = getNumber("monthlyDCA");
+      const riskLevel =
+        document.getElementById("riskLevel").value;
+
+      const targets = targetModels[riskLevel];
+      const totals = getCategoryTotals();
+
+      const monthlyPlan = calculateMonthlyPlan(
+        totals,
+        portfolioTotal,
+        monthlyDCA,
+        targets
+      );
+
+      const table = document.getElementById("allocationTable");
+      table.innerHTML = "";
+
+      let largestDifference = {
+        key: null,
+        difference: 0
+      };
+
+      Object.keys(categories).forEach(key => {
+        const currentPercent =
+          portfolioTotal > 0
+            ? (totals[key] / portfolioTotal) * 100
+            : 0;
+
+        const difference = currentPercent - targets[key];
+
+        if (
+          Math.abs(difference) >
+          Math.abs(largestDifference.difference)
+        ) {
+          largestDifference = {
+            key,
+            difference
+          };
+        }
+
+        const row = document.createElement("tr");
+
+        const categoryCell = document.createElement("td");
+        categoryCell.textContent = categories[key];
+
+        const currentCell = document.createElement("td");
+        currentCell.textContent =
+          formatPercent(currentPercent) +
+          " · " +
+          formatMoney(totals[key]);
+
+        if (difference > 5) {
+          currentCell.className = "overweight";
+        } else if (difference < -5) {
+          currentCell.className = "underweight";
+        }
+
+        const targetCell = document.createElement("td");
+        targetCell.textContent = targets[key] + "%";
+
+        const monthlyCell = document.createElement("td");
+        monthlyCell.textContent =
+          formatMoney(monthlyPlan[key]) + "/month";
+
+        row.appendChild(categoryCell);
+        row.appendChild(currentCell);
+        row.appendChild(targetCell);
+        row.appendChild(monthlyCell);
+
+        table.appendChild(row);
+      });
+
+      renderSuggestions(
+        portfolioTotal,
+        monthlyDCA,
+        riskLevel,
+        largestDifference
+      );
+    }
+
+    function renderSuggestions(
+      portfolioTotal,
+      monthlyDCA,
+      riskLevel,
+      largestDifference
+    ) {
+      const list = document.getElementById("suggestions");
+      list.innerHTML = "";
+
+      const messages = [];
+
+      if (portfolioTotal === 0) {
+        messages.push(
+          "Enter your current asset values to receive a portfolio-specific plan."
+        );
+      } else if (
+        largestDifference.key &&
+        largestDifference.difference > 5
+      ) {
+        messages.push(
+          categories[largestDifference.key] +
+          " is above its target. Consider directing new money to the other categories instead of selling immediately."
+        );
+      } else if (
+        largestDifference.key &&
+        largestDifference.difference < -5
+      ) {
+        messages.push(
+          categories[largestDifference.key] +
+          " is below its target and should receive more of the new monthly investment."
+        );
+      } else {
+        messages.push(
+          "Your overall asset allocation is reasonably close to the selected target."
+        );
+      }
+
+      if (monthlyDCA > 0) {
+        messages.push(
+          "Invest the monthly amount according to the suggested contribution column and review it once a year."
+        );
+      }
+
+      if (
+        riskLevel === "growth" ||
+        riskLevel === "aggressive"
+      ) {
+        messages.push(
+          "This portfolio may experience large temporary declines. Use this risk level only if you can remain invested during market downturns."
+        );
+      }
+
+      messages.push(
+        "Keep an emergency fund separate from long-term investments, normally around 6–12 months of essential expenses."
+      );
+
+      messages.push(
+        "Limit concentrated sector, thematic, or individual-stock positions to a small satellite portion of the portfolio."
+      );
+
+      messages.forEach(message => {
+        const item = document.createElement("li");
+        item.textContent = message;
+        list.appendChild(item);
+      });
+    }
+
+    function updateProjection() {
+      const portfolioTotal = getPortfolioTotal();
+      const monthlyDCA = getNumber("monthlyDCA");
+      const years = getNumber("years");
+      const monthlyIncome = getNumber("monthlyIncome");
+      const annualReturn = getNumber("returnRate");
+      const inflation = getNumber("inflationRate");
+      const withdrawalRate = getNumber("withdrawalRate");
+
+      const futurePortfolio = calculateFutureValue(
+        portfolioTotal,
+        monthlyDCA,
+        years,
+        annualReturn
+      );
+
+      const futureMonthlyIncome =
+        monthlyIncome *
+        Math.pow(1 + inflation / 100, years);
+
+      const requiredPortfolio =
+        withdrawalRate > 0
+          ? futureMonthlyIncome *
+            12 /
+            (withdrawalRate / 100)
+          : 0;
+
+      const gap = futurePortfolio - requiredPortfolio;
+
+      const requiredDCA =
+        calculateRequiredMonthlyInvestment(
+          requiredPortfolio,
+          portfolioTotal,
+          years,
+          annualReturn
+        );
+
+      const progress =
+        requiredPortfolio > 0
+          ? (futurePortfolio / requiredPortfolio) * 100
+          : 0;
+
+      document.getElementById(
+        "futurePortfolio"
+      ).textContent = formatMoney(futurePortfolio);
+
+      document.getElementById(
+        "requiredPortfolio"
+      ).textContent = formatMoney(requiredPortfolio);
+
+      document.getElementById(
+        "futureIncome"
+      ).textContent =
+        formatMoney(futureMonthlyIncome) + "/month";
+
+      const gapElement =
+        document.getElementById("portfolioGap");
+
+      gapElement.textContent =
+        (gap >= 0 ? "+" : "-") +
+        formatMoney(Math.abs(gap));
+
+      gapElement.className =
+        gap >= 0 ? "positive" : "negative";
+
+      document.getElementById(
+        "requiredDCA"
+      ).textContent =
+        formatMoney(requiredDCA) + "/month";
+
+      document.getElementById(
+        "progressText"
+      ).textContent =
+        Math.round(progress).toLocaleString("en-US") + "%";
+
+      document.getElementById(
+        "progressBar"
+      ).style.width =
+        Math.min(100, Math.max(0, progress)) + "%";
+
+      const message =
+        document.getElementById("projectionMessage");
+
+      if (portfolioTotal === 0) {
+        message.textContent =
+          "Add your current assets above to create a more accurate projection.";
+      } else if (gap >= 0) {
+        message.textContent =
+          "Based on these assumptions, your projected portfolio reaches the retirement target. Review your plan annually because actual returns and inflation will vary.";
+      } else {
+        message.textContent =
+          "Based on these assumptions, the plan has a projected shortfall of " +
+          formatMoney(Math.abs(gap)) +
+          ". Possible adjustments include increasing monthly contributions, retiring later, or reducing the retirement income target.";
+      }
+    }
+
+    function updateApp() {
+      document.getElementById(
+        "portfolioTotal"
+      ).textContent = formatMoney(getPortfolioTotal());
+
+      updateProjection();
+      renderAllocationPlan();
+      saveData(false);
+    }
+
+    function saveData(showMessage = false) {
+      const settings = {};
+
+      settingIds.forEach(id => {
+        settings[id] =
+          document.getElementById(id).value;
+      });
+
+      const data = {
+        settings,
+        assets
+      };
+
+      localStorage.setItem(
+        "simpleInvestmentPlanner",
+        JSON.stringify(data)
+      );
+
+      if (showMessage) {
+        alert("Your information has been saved.");
+      }
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem(
+        "simpleInvestmentPlanner"
+      );
+
+      if (!saved) {
+        renderAssets();
+        updateApp();
+        return;
+      }
+
+      try {
+        const data = JSON.parse(saved);
+
+        if (data.settings) {
+          settingIds.forEach(id => {
+            if (data.settings[id] !== undefined) {
+              document.getElementById(id).value =
+                data.settings[id];
+            }
+          });
+        }
+
+        if (
+          Array.isArray(data.assets) &&
+          data.assets.length > 0
+        ) {
+          assets = data.assets;
+        }
+      } catch (error) {
+        assets = JSON.parse(
+          JSON.stringify(defaultAssets)
+        );
+      }
+
+      renderAssets();
+      updateApp();
+    }
+
+    function resetData() {
+      const confirmed = confirm(
+        "Delete all saved information and restore the default settings?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      localStorage.removeItem(
+        "simpleInvestmentPlanner"
+      );
+
+      assets = JSON.parse(
+        JSON.stringify(defaultAssets)
+      );
+
+      document.getElementById("years").value = 25;
+      document.getElementById("monthlyDCA").value = 90000;
+      document.getElementById("monthlyIncome").value = 100000;
+      document.getElementById("riskLevel").value = "growth";
+      document.getElementById("returnRate").value = 6;
+      document.getElementById("inflationRate").value = 2.5;
+      document.getElementById("withdrawalRate").value = 3.5;
+
+      renderAssets();
+      updateApp();
+    }
+
+    settingIds.forEach(id => {
+      document
+        .getElementById(id)
+        .addEventListener("input", updateApp);
+
+      document
+        .getElementById(id)
+        .addEventListener("change", updateApp);
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
